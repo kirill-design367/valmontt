@@ -1,0 +1,64 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      # включает Pages в режиме GitHub Actions, если он ещё не включён
+      - uses: actions/configure-pages@v5
+        with:
+          enablement: true
+
+      - run: npm run build
+
+      # без этого Pages прячет /_next/* — каталоги с подчёркиванием Jekyll
+      # считает служебными и не публикует
+      - name: Отключить Jekyll
+        run: touch out/.nojekyll
+
+      # проверяем, что экспорт действительно ссылается на /valmontt
+      - name: Проверить пути ассетов
+        run: |
+          test -f out/.nojekyll
+          test -f out/valmont-desktop.jpg
+          test -f out/valmont-mobile.jpg
+          test -f out/fonts/index.html
+          grep -q '/valmontt/_next/static' out/index.html
+          echo "экспорт собран, пути с basePath на месте"
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: out
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

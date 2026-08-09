@@ -1,0 +1,170 @@
+/* Единственная страница со скроллом. Скроллит внутренний контейнер,
+   чтобы не трогать заблокированный body. */
+.page {
+  position: fixed;
+  inset: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background: var(--color-void);
+  color: var(--color-bone);
+  padding: 4rem var(--gutter) 6rem;
+}
+
+.head {
+  max-width: 46rem;
+  margin-bottom: 4.5rem;
+}
+
+.eyebrow {
+  font-size: 11px;
+  font-weight: 300;
+  letter-spacing: 0.28em;
+  color: var(--text-dim);
+  margin-bottom: 1.5rem;
+  display: block;
+}
+
+.title {
+  font-size: clamp(2rem, 3.4vw, 3.25rem);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+}
+
+.intro {
+  margin-top: 1.5rem;
+  font-size: 14px;
+  font-weight: 300;
+  line-height: 1.7;
+  color: var(--text-dim);
+}
+
+.back {
+  display: inline-block;
+  margin-top: 2rem;
+  font-size: 11px;
+  font-weight: 300;
+  letter-spacing: 0.28em;
+  color: var(--color-bone);
+  text-decoration: none;
+  border-bottom: 1px solid var(--hairline-soft);
+  padding-bottom: 4px;
+}
+
+.grid {
+  display: grid;
+  gap: 3.5rem;
+}
+
+.card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+  gap: clamp(2rem, 4vw, 4.5rem);
+  align-items: start;
+  padding-top: 3rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+.meta {
+  display: flex;
+  align-items: baseline;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.25rem;
+}
+
+.name {
+  font-size: clamp(1.5rem, 2.2vw, 2.15rem);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.role {
+  font-size: 10px;
+  font-weight: 400;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  border: 1px solid var(--hairline-soft);
+  border-radius: 999px;
+  padding: 5px 11px;
+}
+
+.note {
+  font-size: 14px;
+  font-weight: 300;
+  line-height: 1.75;
+  color: rgba(255, 255, 255, 0.78);
+  max-width: 34rem;
+}
+
+.facts {
+  margin-top: 1.75rem;
+  display: grid;
+  gap: 0.6rem;
+  font-size: 12px;
+  font-weight: 300;
+  color: var(--text-dim);
+}
+
+.facts b {
+  font-weight: 500;
+  color: var(--color-bone);
+}
+
+/* Горизонтальная проверка проблемных знаков */
+.letters {
+  margin-top: 2rem;
+  font-size: clamp(2rem, 3.4vw, 3.25rem);
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: 0.01em;
+  color: rgba(255, 255, 255, 0.9);
+  word-break: break-all;
+}
+
+/* Вертикальный вордмарк в финальном кегле, обрезанный как в hero */
+.stage {
+  position: relative;
+  height: 70vh;
+  min-height: 30rem;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: #050508;
+  display: flex;
+  justify-content: center;
+}
+
+.stage::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(120% 90% at 50% 50%, rgba(7, 7, 10, 0) 45%, rgba(7, 7, 10, 0.75) 100%);
+}
+
+.specimen {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  /* тот же расчёт, что и в hero: столбец ≈ 110 % высоты сцены */
+  font-size: 9.24vh;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: 0.31em;
+  white-space: nowrap;
+  color: var(--color-bone);
+  filter: drop-shadow(0 0 26px rgba(255, 255, 255, 0.45))
+    drop-shadow(0 0 70px rgba(255, 255, 255, 0.25));
+  margin: -5.5vh 0;
+}
+
+@media (max-width: 900px) {
+  .card {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .stage {
+    height: 60vh;
+  }
+}

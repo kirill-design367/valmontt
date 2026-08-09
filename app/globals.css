@@ -1,0 +1,91 @@
+@import 'tailwindcss';
+
+/* ------------------------------------------------------------------ *
+ * ВАЛЬМОНТ — токены
+ * Палитра снята с герба: почти чёрный фон, оперение — малина, бирюза,
+ * янтарь, уходящие в потемневшую бронзу. Интерфейс белый; из цветного
+ * в нём живёт только точка на корзине.
+ * ------------------------------------------------------------------ */
+@theme {
+  --color-void: #07070a;
+  --color-bone: #ffffff;
+  --color-crimson: #c81e5a;
+
+  /* присутствуют в снимке, в интерфейс не выходят */
+  --color-plume-crimson: #b03567;
+  --color-plume-teal: #2f7d84;
+  --color-plume-amber: #d1863c;
+  --color-plume-bronze: #6b4a2a;
+
+  --font-display: var(--font-onest), 'Onest', system-ui, sans-serif;
+
+  /* премиальные кривые — линейных переходов на странице нет */
+  --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+:root {
+  /* Вордмарк. Шаг столбца = (средний апрош 0.728em + трекинг) × кегль.
+     При этих числах восемь литер дают ~110% высоты вьюпорта, то есть
+     В и Т гарантированно срезаны краями экрана. */
+  --wordmark-size: 13.2dvh;
+  --wordmark-track: 0.31em;
+  --wordmark-right: 6.4rem;
+
+  --gutter: 2.5rem;
+  --nav-h: 4.5rem;
+
+  --hairline: rgba(255, 255, 255, 0.55);
+  --hairline-soft: rgba(255, 255, 255, 0.28);
+  --text-dim: rgba(255, 255, 255, 0.7);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html,
+body {
+  /* Строго один экран: ни скролла, ни полосы прокрутки. */
+  height: 100%;
+  overflow: hidden;
+  overscroll-behavior: none;
+  background: var(--color-void);
+  color: var(--color-bone);
+}
+
+body {
+  font-family: var(--font-display);
+  font-synthesis-weight: none;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+:focus-visible {
+  outline: 1px solid var(--color-bone);
+  outline-offset: 4px;
+}
+
+/* Страница шрифтов — единственное место, где скролл разрешён. */
+body[data-scrollable='true'],
+html:has(body[data-scrollable='true']) {
+  overflow: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
