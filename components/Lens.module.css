@@ -13,6 +13,7 @@
   pointer-events: auto;
   overflow: hidden;
   isolation: isolate;
+  transform-origin: center center;
 }
 
 .lens:focus-visible {
@@ -37,9 +38,9 @@
 }
 
 .frostBlur {
-  backdrop-filter: blur(13px) saturate(0.72) brightness(1.06);
-  -webkit-backdrop-filter: blur(13px) saturate(0.72) brightness(1.06);
-  background: rgba(210, 218, 228, 0.07);
+  backdrop-filter: blur(26px) saturate(0.55) brightness(1.24) contrast(0.86);
+  -webkit-backdrop-filter: blur(26px) saturate(0.55) brightness(1.24) contrast(0.86);
+  background: rgba(214, 224, 236, 0.17);
 }
 
 /* опушка по краям — она проступает первой, поэтому иней читается
@@ -47,10 +48,14 @@
 .frostEdge {
   background: radial-gradient(
     closest-side,
-    rgba(255, 255, 255, 0) 34%,
-    rgba(226, 234, 244, 0.09) 74%,
-    rgba(226, 234, 244, 0.2) 100%
+    rgba(255, 255, 255, 0) 26%,
+    rgba(226, 234, 244, 0.16) 68%,
+    rgba(232, 240, 250, 0.36) 100%
   );
+  /* тонкое свечение по самой кромке рамки */
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.5),
+    0 0 22px rgba(214, 226, 240, 0.28);
 }
 
 .arrow {
@@ -113,7 +118,8 @@
   opacity: 0;
 }
 
-.crimson {
+/* специфичнее, чем `.row > span` — иначе белый из общего правила побеждает */
+.row > span.crimson {
   color: var(--color-crimson);
 }
 

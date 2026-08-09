@@ -67,20 +67,9 @@
   overflow: hidden;
 }
 
-.letter,
-.ghost {
+.letter {
   display: block;
   will-change: transform, opacity;
-}
-
-/* фиксированный блюр — на входе гаснет, радиус не анимируется */
-.ghost {
-  position: absolute;
-  inset: 0;
-  filter: blur(12px);
-  transform: translateZ(0);
-  visibility: hidden;
-  opacity: 0;
 }
 
 .bloom {

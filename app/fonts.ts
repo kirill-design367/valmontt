@@ -1,4 +1,4 @@
-import { Onest, Unbounded, Geologica, Inter, Oswald, Golos_Text } from 'next/font/google'
+import { Onest, Geologica, Inter, Oswald, Golos_Text } from 'next/font/google'
 
 /**
  * Пара на проект: акцидентный на вордмарк и крупные заголовки, нейтральный
@@ -13,7 +13,10 @@ import { Onest, Unbounded, Geologica, Inter, Oswald, Golos_Text } from 'next/fon
 
 /* ---- рабочая пара: грузится на всём сайте ------------------------------ */
 
-export const display = Unbounded({
+/* Unbounded снят: в вертикали разъезжался хуже прежнего. Пока акцидентная
+   роль возвращена Onest — это рабочее состояние, а не финальное решение;
+   кандидаты на замену собраны на /fonts. */
+export const display = Onest({
   subsets: ['cyrillic', 'latin'],
   weight: ['700', '800'],
   variable: '--font-display-src',
@@ -86,6 +89,82 @@ export type Pair = {
   wordmarkScale: number
   note: string
 }
+
+export type Candidate = {
+  id: string
+  name: string
+  foundry: string
+  url: string
+  price: string
+  /** проверена ли кириллица по таблице cmap в самом бинарнике */
+  cmapChecked: boolean
+  /** чем набирается образец, пока файла нет */
+  fallbackVar: string
+  fallbackWeight: number
+  wordmarkScale: number
+  note: string
+}
+
+export const CANDIDATES: Candidate[] = [
+  {
+    id: 'cofo-sans',
+    name: 'CoFo Sans',
+    foundry: 'Contrast Foundry',
+    url: 'https://contrastfoundry.com/typefaces/cofo-sans',
+    price: '≈ 60 € начертание, семья ≈ 300 €',
+    cmapChecked: false,
+    fallbackVar: '--font-inter',
+    fallbackWeight: 700,
+    wordmarkScale: 1,
+    note:
+      'Гротеск, у которого кириллица — исходный набор, а не расширение: студия ' +
+      'русская, латиница рисовалась второй. Прописные широкие и с ровными ' +
+      'стойками, диагонали Ж строго прямые и сходятся в одну точку — при ' +
+      'повороте на 90° это главное, потому что косые стыки на боку читаются ' +
+      'как излом. Ъ с короткой прямой полкой, Щ с хвостом внутри габарита, ' +
+      'а не свисающим. Характер строгий, ближе к швейцарскому, чем к ' +
+      'геометрическому: рядом с Onest на интерфейсе не спорит, а старше его ' +
+      'на полтона.',
+  },
+  {
+    id: 'formular',
+    name: 'Formular',
+    foundry: 'Brownfox',
+    url: 'https://brownfox.org/fonts/formular',
+    price: '≈ 65 $ начертание, семья ≈ 350 $',
+    cmapChecked: false,
+    fallbackVar: '--font-geologica',
+    fallbackWeight: 800,
+    wordmarkScale: 1.04,
+    note:
+      'Неогротеск с очень спокойным ритмом и почти одинаковой шириной ' +
+      'прописных — в вертикальном столбце это даёт ровный шаг без провалов, ' +
+      'та самая проблема, на которой сыпался Unbounded. Ж симметрична и ' +
+      'компактна, Ф — окружность на сквозном стволе без утолщений, Щ и Ъ ' +
+      'вписаны в общую ширину, поэтому повёрнутые не заваливаются. Не ' +
+      'декоративный совсем: держится на пропорциях, а не на приёме. Восемь ' +
+      'начертаний, есть узкие — но узкие нам не нужны, берём обычные.',
+  },
+  {
+    id: 'kazimir-sans',
+    name: 'Pilar',
+    foundry: 'type.today (CSTM Fonts)',
+    url: 'https://type.today/ru/pilar',
+    price: '≈ 4 000 ₽ начертание, семья ≈ 20 000 ₽',
+    cmapChecked: false,
+    fallbackVar: '--font-golos',
+    fallbackWeight: 500,
+    wordmarkScale: 1.08,
+    note:
+      'Самый «характерный» из трёх и единственный, у кого крупный кегль — ' +
+      'прямое назначение, а не побочная возможность. Стойки чуть тяжелее ' +
+      'соединений, поэтому в 100 px+ буква не выглядит нарисованной по ' +
+      'сетке; при этом ни одной каллиграфической детали. Ж собрана из трёх ' +
+      'элементов с прямыми диагоналями, Ъ короткий, Щ с ровным хвостом. ' +
+      'Риск: он заметнее Onest, и если интерфейс когда-нибудь подрастёт в ' +
+      'кегле, пара начнёт спорить. Для вордмарка и только для него — лучший.',
+  },
+]
 
 export const PAIRS: Pair[] = [
   {

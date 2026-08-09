@@ -35,31 +35,34 @@ export default function Lens() {
     const t = gsap.timeline({ paused: true })
     if (reduce) {
       // без движения: состояние переключается мгновенно
-      t.set(q('[data-frost-edge]'), { autoAlpha: 1 }, 0)
+      t.set(el, { scale: 1.03 }, 0)
+        .set(q('[data-frost-edge]'), { autoAlpha: 1 }, 0)
         .set(q('[data-frost-blur]'), { autoAlpha: 1 }, 0)
         .set(q('[data-rest]'), { autoAlpha: 0 }, 0)
         .set(q('[data-rest-ghost]'), { autoAlpha: 0 }, 0)
         .set(q('[data-fact]'), { autoAlpha: 1, yPercent: 0 }, 0)
     } else {
       t
+        // прибор подаётся вперёд
+        .to(el, { scale: 1.03, duration: 0.5, ease: 'power3.out' }, 0)
         // иней нарастает от краёв к центру: сперва опушка, следом подложка
         .to(q('[data-frost-edge]'), { autoAlpha: 1, duration: 0.28, ease: 'power2.out' }, 0)
         .to(q('[data-frost-blur]'), { autoAlpha: 1, duration: 0.5, ease: 'power2.out' }, 0.08)
         // исходные строки уходят вверх, размытый дубль подхватывает их в пути
-        .to(q('[data-rest]'), { yPercent: -110, autoAlpha: 0, duration: 0.34, ease: 'power3.in' }, 0)
+        .to(q('[data-rest]'), { yPercent: -115, autoAlpha: 0, duration: 0.35, ease: 'power3.in' }, 0)
         .fromTo(
           q('[data-rest-ghost]'),
           { yPercent: 0, autoAlpha: 0 },
-          { yPercent: -110, autoAlpha: 0.55, duration: 0.34, ease: 'power3.in' },
+          { yPercent: -115, autoAlpha: 0.6, duration: 0.35, ease: 'power3.in' },
           0,
         )
         .set(q('[data-rest-ghost]'), { autoAlpha: 0 })
         // на их месте проступают данные вечера
         .fromTo(
           q('[data-fact]'),
-          { yPercent: 115, autoAlpha: 0 },
-          { yPercent: 0, autoAlpha: 1, duration: 0.5, stagger: 0.06, ease: 'power3.out' },
-          0.2,
+          { yPercent: 118, autoAlpha: 0 },
+          { yPercent: 0, autoAlpha: 1, duration: 0.5, stagger: 0.08, ease: 'power3.out' },
+          0.22,
         )
     }
     tl.current = t
