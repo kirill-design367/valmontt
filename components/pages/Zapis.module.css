@@ -1,0 +1,205 @@
+.wrap {
+  position: relative;
+  max-width: 44rem;
+}
+
+.lede {
+  max-width: var(--measure);
+  margin-top: 1.6rem;
+  font-size: 13px;
+  font-weight: 300;
+  line-height: 1.7;
+  color: var(--text-dim);
+}
+
+/* Билет: тонкая рамка, ничего лишнего. Внутри либо форма, либо номер. */
+.ticket {
+  position: relative;
+  margin-top: clamp(3rem, 7vh, 5rem);
+  border: 1px solid var(--hairline-soft);
+  border-radius: 26px;
+  padding: clamp(1.75rem, 4vw, 3rem);
+  min-height: 26rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.75rem;
+}
+
+.field {
+  display: block;
+  position: relative;
+}
+
+.label {
+  display: block;
+  font-size: 10px;
+  font-weight: 300;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.55);
+  margin-bottom: 0.7rem;
+}
+
+.input {
+  width: 100%;
+  background: none;
+  border: 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.22);
+  padding: 0.55rem 0;
+  font-family: inherit;
+  font-size: clamp(1.05rem, 1.8vw, 1.35rem);
+  font-weight: 400;
+  color: var(--color-bone);
+  transition: border-color 0.5s var(--ease-out-quint);
+}
+
+.input::placeholder {
+  color: rgba(255, 255, 255, 0.22);
+}
+
+.input:focus {
+  outline: none;
+  border-bottom-color: var(--color-bone);
+}
+
+/* Мягкая валидация: подсвечиваем поле, без крестов и красных фраз. */
+.field[data-empty='true'] .input {
+  border-bottom-color: var(--color-crimson);
+}
+
+.field[data-empty='true'] .label {
+  color: var(--color-crimson);
+}
+
+.row {
+  display: flex;
+  gap: clamp(1.5rem, 4vw, 3rem);
+}
+
+.row .field:first-child {
+  flex: 1;
+}
+
+.row .field:last-child {
+  width: 8rem;
+  flex: none;
+}
+
+.submit {
+  align-self: flex-start;
+  margin-top: 0.75rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.85rem 1.1rem 0.85rem 1.5rem;
+  border: 0;
+  border-radius: 999px;
+  background: var(--color-bone);
+  color: #050507;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: transform 0.5s var(--ease-out-quint);
+}
+
+.submit:hover {
+  transform: scale(1.045);
+}
+
+.submit svg {
+  width: 15px;
+  height: 15px;
+}
+
+.hint {
+  font-size: 11px;
+  font-weight: 300;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+/* ------------------------------------------------------------------ *
+ * Результат: номер приглашения на месте формы
+ * ------------------------------------------------------------------ */
+.done {
+  position: absolute;
+  inset: clamp(1.75rem, 4vw, 3rem);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 1.1rem;
+  opacity: 0;
+  visibility: hidden;
+}
+
+.doneLabel {
+  font-size: 10px;
+  font-weight: 300;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.number {
+  display: flex;
+  gap: 0.06em;
+  font-size: clamp(2.2rem, 6vw, 4.2rem);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.number span {
+  display: inline-block;
+  will-change: transform;
+}
+
+.donePromise {
+  font-size: 13px;
+  font-weight: 300;
+  color: var(--text-dim);
+}
+
+/* Вертикальная подпись на билете — фирменный приём страницы */
+.stamp {
+  position: absolute;
+  top: clamp(1.75rem, 4vw, 3rem);
+  right: clamp(1.75rem, 4vw, 3rem);
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  font-size: 11px;
+  font-weight: 300;
+  letter-spacing: 0.3em;
+  color: rgba(255, 255, 255, 0.32);
+  pointer-events: none;
+}
+
+@media (max-width: 767px) {
+  .row {
+    flex-direction: column;
+    gap: 1.75rem;
+  }
+
+  .row .field:last-child {
+    width: 6.5rem;
+  }
+
+  .ticket {
+    min-height: 24rem;
+    border-radius: 20px;
+  }
+
+  .stamp {
+    display: none;
+  }
+}

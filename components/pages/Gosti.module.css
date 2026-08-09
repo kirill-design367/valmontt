@@ -1,0 +1,151 @@
+/* Бестиарий: блок на зверя, следующий наезжает поверх предыдущего. */
+.stack {
+  position: relative;
+}
+
+.beast {
+  /* Стопка липких экранов: предыдущий зверь стоит, следующий наезжает
+     поверх него. Это и есть «смена с перекрытием», без резкого стыка. */
+  position: sticky;
+  top: 0;
+  height: 100dvh;
+  min-height: 34rem;
+  overflow: hidden;
+  background: var(--color-void);
+}
+
+.sticky {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.plate {
+  position: absolute;
+  inset: 0;
+}
+
+.plate img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  will-change: transform;
+}
+
+.shade {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgba(7, 7, 10, 0.72) 0%, rgba(7, 7, 10, 0) 32%),
+    linear-gradient(0deg, rgba(7, 7, 10, 0.85) 0%, rgba(7, 7, 10, 0) 46%);
+}
+
+/* Имя вертикально вдоль края. Сторона чередуется: слева, справа, слева, справа */
+.name {
+  position: absolute;
+  top: 50%;
+  z-index: 3;
+  transform: translateY(-50%);
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  font-size: clamp(2.5rem, 9.5dvh, 6.5rem);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: 0.16em;
+  color: var(--color-bone);
+  white-space: nowrap;
+  user-select: none;
+}
+
+.left .name {
+  left: clamp(1rem, 3vw, 3rem);
+}
+
+.right .name {
+  right: clamp(1rem, 3vw, 3rem);
+}
+
+.caption {
+  position: absolute;
+  bottom: clamp(2.5rem, 8vh, 5rem);
+  z-index: 3;
+  max-width: min(30rem, 62vw);
+}
+
+.left .caption {
+  right: clamp(2.5rem, 7vw, 7rem);
+  text-align: right;
+}
+
+.right .caption {
+  left: clamp(2.5rem, 7vw, 7rem);
+}
+
+.what {
+  display: block;
+  font-size: clamp(1rem, 1.6vw, 1.35rem);
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.when {
+  display: block;
+  margin-top: 0.6rem;
+  font-size: 12px;
+  font-weight: 300;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.todo {
+  position: absolute;
+  top: calc(var(--nav-h) + 0.75rem);
+  z-index: 3;
+  font-size: 9px;
+  font-weight: 300;
+  letter-spacing: 0.24em;
+  color: rgba(255, 255, 255, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 999px;
+  padding: 4px 9px;
+}
+
+.left .todo {
+  right: var(--gutter);
+}
+
+.right .todo {
+  left: var(--gutter);
+}
+
+@media (max-width: 767px) {
+  /* На телефоне имя уводим наверх, а подпись кладём на всю ширину внизу —
+     сбоку они не разойдутся. */
+  .name {
+    top: calc(var(--nav-h) + 1rem);
+    transform: none;
+    font-size: clamp(1.9rem, 6.4dvh, 3rem);
+  }
+
+  .left .name,
+  .right .name {
+    left: auto;
+    right: 0.9rem;
+  }
+
+  .caption,
+  .left .caption {
+    left: var(--gutter);
+    right: var(--gutter);
+    max-width: none;
+    text-align: left;
+    bottom: 2.5rem;
+  }
+
+  .left .todo,
+  .right .todo {
+    left: var(--gutter);
+    right: auto;
+  }
+}

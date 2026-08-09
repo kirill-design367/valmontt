@@ -7,6 +7,8 @@
 .hero {
   position: fixed;
   inset: 0;
+  z-index: 0;
+  isolation: isolate; /* блоки главной едут поверх hero, а не между его слоями */
   height: 100vh;
   height: 100dvh;
   overflow: hidden;
@@ -47,6 +49,23 @@
     linear-gradient(100deg, rgba(7, 7, 10, 0.86) 0%, rgba(7, 7, 10, 0.34) 34%, rgba(7, 7, 10, 0) 62%),
     linear-gradient(180deg, rgba(7, 7, 10, 0.72) 0%, rgba(7, 7, 10, 0) 26%),
     radial-gradient(130% 110% at 62% 34%, rgba(7, 7, 10, 0) 38%, rgba(7, 7, 10, 0.62) 100%);
+}
+
+/* Подложка под текстовый блок. Появилась вместе с настоящим снимком:
+   на узких экранах кроп подводит клюв и перья прямо под заголовок.
+   Максимум 40 % чёрного и плавный уход в ноль — видимой границы нет. */
+.textScrim {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(
+    100deg,
+    rgba(0, 0, 0, 0.4) 0%,
+    rgba(0, 0, 0, 0.28) 26%,
+    rgba(0, 0, 0, 0.08) 44%,
+    rgba(0, 0, 0, 0) 58%
+  );
 }
 
 /* ------------------------------------------------------------------ *
@@ -295,6 +314,7 @@
 /* --- Пилюля --- */
 .pill {
   --pill-glow: 0;
+  text-decoration: none;
   position: relative;
   display: inline-flex;
   align-items: center;
@@ -462,6 +482,17 @@
   .navLinks,
   .avatars {
     display: none;
+  }
+
+  /* на телефоне текст лежит сверху, значит и растяжка сверху вниз */
+  .textScrim {
+    background: linear-gradient(
+      185deg,
+      rgba(0, 0, 0, 0.4) 0%,
+      rgba(0, 0, 0, 0.32) 32%,
+      rgba(0, 0, 0, 0.1) 50%,
+      rgba(0, 0, 0, 0) 64%
+    );
   }
 
   /* без пунктов посередине корзину надо самой отжать к правому краю */

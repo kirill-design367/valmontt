@@ -1,0 +1,52 @@
+/* Штора перехода. Держится над всем, но в покое не существует для мыши. */
+.curtain {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: grid;
+  place-items: center;
+  background: #050507;
+  visibility: hidden;
+  pointer-events: none;
+  will-change: transform;
+}
+
+.stack {
+  position: relative;
+  display: block;
+}
+
+/* Тот же приём, что вордмарк hero: вертикаль, крупный вес, ореол под литерами */
+.name,
+.nameBloom {
+  display: block;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  font-size: clamp(3.5rem, 11dvh, 8rem);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: 0.26em;
+  color: var(--color-bone);
+  white-space: nowrap;
+  user-select: none;
+}
+
+.name {
+  position: relative;
+  z-index: 2;
+}
+
+/* фиксированный блюр, не анимируется — только прозрачность родителя */
+.nameBloom {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  filter: blur(38px);
+  opacity: 0.55;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .curtain {
+    display: none;
+  }
+}

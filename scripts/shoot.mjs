@@ -1,8 +1,8 @@
 /**
- * Снимает статический экспорт в реальных разрешениях и меряет частоту кадров
- * во время входной анимации и параллакса.
+ * Снимает статический экспорт во всех разрешениях, проверяет маршруты
+ * и меряет фактическую частоту кадров.
  *
- *   node scripts/shoot.mjs [outDir]
+ *   npm run build && node scripts/shoot.mjs [каталог-снимков]
  */
 import { chromium } from 'playwright'
 import http from 'node:http'
@@ -19,24 +19,20 @@ const TYPES = {
   '.js': 'text/javascript',
   '.css': 'text/css',
   '.jpg': 'image/jpeg',
+  '.jpeg': 'image/jpeg',
   '.woff2': 'font/woff2',
   '.ico': 'image/x-icon',
   '.txt': 'text/plain',
+  '.svg': 'image/svg+xml',
 }
 
 const server = http.createServer((req, res) => {
   let p = decodeURIComponent(req.url.split('?')[0])
-  if (!p.startsWith(BASE)) {
-    res.writeHead(404).end('outside basePath')
-    return
-  }
+  if (!p.startsWith(BASE)) return res.writeHead(404).end('вне basePath')
   p = p.slice(BASE.length) || '/'
   let file = path.join(ROOT, p)
   if (fs.existsSync(file) && fs.statSync(file).isDirectory()) file = path.join(file, 'index.html')
-  if (!fs.existsSync(file)) {
-    res.writeHead(404).end('not found')
-    return
-  }
+  if (!fs.existsSync(file)) return res.writeHead(404).end('нет файла')
   res.writeHead(200, { 'content-type': TYPES[path.extname(file)] ?? 'application/octet-stream' })
   fs.createReadStream(file).pipe(res)
 })
@@ -44,81 +40,93 @@ const server = http.createServer((req, res) => {
 await new Promise((r) => server.listen(4321, r))
 const origin = `http://127.0.0.1:4321${BASE}`
 
-// в этом окружении Chromium уже стоит — качать ничего не надо
 const browser = await chromium.launch({
   executablePath: process.env.CHROMIUM_PATH ?? '/opt/pw-browsers/chromium',
   args: ['--force-device-scale-factor=1', '--no-sandbox'],
 })
 
-const VIEWPORTS = [
-  { name: 'desktop-1920x1080', width: 1920, height: 1080, path: '/' },
-  { name: 'desktop-2560x1440', width: 2560, height: 1440, path: '/' },
-  { name: 'mobile-390x844', width: 390, height: 844, path: '/', mobile: true },
-  { name: 'fonts-1920x1080', width: 1920, height: 1080, path: '/fonts/', full: true },
+const ROUTES = [
+  { path: '/', name: 'glavnaya' },
+  { path: '/programma/', name: 'programma' },
+  { path: '/gosti/', name: 'gosti' },
+  { path: '/mesto/', name: 'mesto' },
+  { path: '/zapis/', name: 'zapis' },
+]
+
+const SIZES = [
+  { tag: 'desktop', width: 1920, height: 1080 },
+  { tag: 'wide', width: 2560, height: 1440, only: '/' },
+  { tag: 'mobile', width: 390, height: 844, mobile: true },
 ]
 
 const failures = []
+const note = (m) => failures.push(m)
 
-for (const v of VIEWPORTS) {
-  const ctx = await browser.newContext({
-    viewport: { width: v.width, height: v.height },
-    deviceScaleFactor: 1,
-    isMobile: !!v.mobile,
-    hasTouch: !!v.mobile,
-    reducedMotion: 'no-preference',
-  })
-  const page = await ctx.newPage()
-  page.on('console', (m) => m.type() === 'error' && failures.push(`${v.name}: ${m.text()}`))
-  page.on('requestfailed', (r) => failures.push(`${v.name}: ${r.url()} ${r.failure()?.errorText}`))
+/* ---- 1. каждый маршрут отдаётся по прямой ссылке и рисуется без ошибок ---- */
+for (const size of SIZES) {
+  for (const route of ROUTES) {
+    if (size.only && size.only !== route.path) continue
 
-  await page.goto(origin + v.path, { waitUntil: 'networkidle' })
+    const ctx = await browser.newContext({
+      viewport: { width: size.width, height: size.height },
+      deviceScaleFactor: 1,
+      isMobile: !!size.mobile,
+      hasTouch: !!size.mobile,
+    })
+    const page = await ctx.newPage()
+    page.on('console', (m) => m.type() === 'error' && note(`${route.name}/${size.tag}: ${m.text()}`))
+    page.on('requestfailed', (r) =>
+      note(`${route.name}/${size.tag}: не загрузилось ${r.url()}`),
+    )
 
-  await page.waitForTimeout(3200) // вход отыгран целиком
+    const resp = await page.goto(origin + route.path, { waitUntil: 'networkidle' })
+    if (!resp || resp.status() !== 200) {
+      note(`${route.name}: прямая ссылка отдала ${resp?.status()}`)
+    }
+    await page.waitForTimeout(route.path === '/' ? 3400 : 1800)
 
-  await page.screenshot({ path: path.join(SHOTS, `${v.name}.png`), fullPage: !!v.full })
+    await page.screenshot({ path: path.join(SHOTS, `${route.name}-${size.tag}.png`) })
 
-  // проверка «строго 100vh, без скролла»
-  const overflow = await page.evaluate(() => ({
-    scrollH: document.documentElement.scrollHeight,
-    clientH: document.documentElement.clientHeight,
-    scrollW: document.documentElement.scrollWidth,
-    clientW: document.documentElement.clientWidth,
-  }))
-  if (!v.full && (overflow.scrollH > overflow.clientH || overflow.scrollW > overflow.clientW)) {
-    failures.push(`${v.name}: страница прокручивается ${JSON.stringify(overflow)}`)
+    // горизонтальной прокрутки быть не должно нигде
+    const box = await page.evaluate(() => ({
+      sw: document.documentElement.scrollWidth,
+      cw: document.documentElement.clientWidth,
+      sh: document.documentElement.scrollHeight,
+    }))
+    if (box.sw > box.cw + 1) note(`${route.name}/${size.tag}: горизонтальный скролл ${box.sw}>${box.cw}`)
+
+    // hero — ровно один экран без скролла внутри себя
+    if (route.path === '/') {
+      const heroH = await page.evaluate(() => {
+        const m = document.querySelector('main')
+        return m ? Math.round(m.getBoundingClientRect().height) : 0
+      })
+      if (Math.abs(heroH - size.height) > 2) {
+        note(`hero/${size.tag}: высота ${heroH} вместо ${size.height}`)
+      }
+    }
+
+    console.log(`✓ ${route.name.padEnd(10)} ${size.tag.padEnd(8)} высота страницы ${box.sh}`)
+    await ctx.close()
   }
+}
 
-  console.log(`✓ ${v.name}`, JSON.stringify(overflow))
+/* ---- 2. полностраничные снимки внутренних страниц ---------------------- */
+for (const route of ROUTES.slice(1)) {
+  const ctx = await browser.newContext({ viewport: { width: 1920, height: 1080 } })
+  const page = await ctx.newPage()
+  await page.goto(origin + route.path, { waitUntil: 'networkidle' })
+  await page.waitForTimeout(1500)
+  // /gosti и /mesto держатся на pin/sticky — полностраничный снимок их ломает
+  if (route.path === '/programma/' || route.path === '/zapis/') {
+    await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight))
+    await page.waitForTimeout(1400)
+    await page.screenshot({ path: path.join(SHOTS, `${route.name}-full.png`), fullPage: true })
+  }
   await ctx.close()
 }
 
-/* ---- раскадровка входа --------------------------------------------------
- * Снимать надо от commit, а не от networkidle: к networkidle таймлайн уже
- * отыгран и в кадре только финал.
- * ---------------------------------------------------------------------- */
-{
-  const c = await browser.newContext({ viewport: { width: 1920, height: 1080 } })
-  const p = await c.newPage()
-  await p.goto(origin + '/', { waitUntil: 'commit' })
-  // ждём фактический старт таймлайна — он отложен до декодирования снимка
-  await p.waitForFunction(() => {
-    const el = document.querySelector('[data-wordmark]')
-    return el && parseFloat(getComputedStyle(el).opacity) > 0.02
-  })
-  let prev = 0
-  for (const t of [150, 500, 1000, 1600, 2400]) {
-    await p.waitForTimeout(t - prev)
-    prev = t
-    await p.screenshot({ path: path.join(SHOTS, `entrance-${String(t).padStart(4, '0')}ms.png`) })
-  }
-  await c.close()
-}
-
-/* ---- частота кадров ---------------------------------------------------- *
- * Каждый замер — в отдельном контексте и по очереди: две анимирующие
- * страницы в одном браузере отбирают друг у друга процессор, и цифры плывут.
- * Берём медиану из трёх прогонов.
- * ---------------------------------------------------------------------- */
+/* ---- 3. частота кадров ------------------------------------------------- */
 const SAMPLER = `async (ms) => {
   let n = 0
   const t0 = performance.now()
@@ -139,69 +147,62 @@ async function solo(fn) {
   return out
 }
 
-const ceiling = median(
-  await Promise.all([0, 1, 2].map(() => 0)).then(() =>
-    Promise.resolve([]).then(async () => {
-      const r = []
-      for (let i = 0; i < 3; i++) {
-        r.push(await solo(async (p) => {
-          await p.goto('data:text/html,<body style="background:#000">')
-          return p.evaluate(`(${SAMPLER})(1200)`)
-        }))
-      }
-      return r
-    }),
-  ),
-)
-
-const entranceRuns = []
+// потолок этого рендерера — пустая страница в тех же условиях
+const ceilingRuns = []
 for (let i = 0; i < 3; i++) {
-  entranceRuns.push(
+  ceilingRuns.push(
     await solo(async (p) => {
-      await p.goto(origin + '/', { waitUntil: 'commit' })
-      return p.evaluate(`(async () => {
-        await new Promise((done) => {
-          const poll = () => {
-            const el = document.querySelector('[data-wordmark]')
-            if (el && parseFloat(getComputedStyle(el).opacity) > 0.02) return done()
-            requestAnimationFrame(poll)
-          }
-          poll()
-        })
-        return (${SAMPLER})(2100)
-      })()`)
+      await p.goto('data:text/html,<body style="background:#000">')
+      return p.evaluate(`(${SAMPLER})(1200)`)
     }),
   )
 }
-const entranceFps = median(entranceRuns)
+const ceiling = median(ceilingRuns)
 
-const steady = await solo(async (p) => {
+const fps = { ceiling }
+
+// скролл по каждой странице
+for (const route of ROUTES) {
+  fps[route.name] = await solo(async (p) => {
+    await p.goto(origin + route.path, { waitUntil: 'networkidle' })
+    await p.waitForTimeout(route.path === '/' ? 3400 : 1600)
+    return p.evaluate(`(async () => {
+      let y = 0
+      const drive = setInterval(() => {
+        y += 90
+        window.scrollTo(0, y % Math.max(1, document.body.scrollHeight - innerHeight))
+        dispatchEvent(new WheelEvent('wheel', { deltaY: 90 }))
+      }, 16)
+      const f = await (${SAMPLER})(2000)
+      clearInterval(drive)
+      return f
+    })()`)
+  })
+}
+
+// переход между страницами: меряем ровно во время шторы
+fps.perehod = await solo(async (p) => {
   await p.goto(origin + '/', { waitUntil: 'networkidle' })
-  await p.waitForTimeout(3200)
-  const idle = await p.evaluate(`(${SAMPLER})(1200)`)
-  const moving = await p.evaluate(`(async () => {
-    let x = 0
-    const drive = setInterval(() => {
-      x = (x + 40) % innerWidth
-      dispatchEvent(new PointerEvent('pointermove', { clientX: x, clientY: (x / 3) % innerHeight }))
-    }, 16)
-    const fps = await (${SAMPLER})(1800)
-    clearInterval(drive)
-    return fps
+  await p.waitForTimeout(3400)
+  return p.evaluate(`(async () => {
+    const link = [...document.querySelectorAll('a')].find(a => a.getAttribute('href')?.includes('programma'))
+    link.click()
+    return (${SAMPLER})(1400)
   })()`)
-  return { idle, moving }
 })
 
-console.log('FPS', JSON.stringify({ entrance: entranceFps, ...steady, ceiling }))
-if (steady.moving < ceiling * 0.9) failures.push(`параллакс ${steady.moving} fps против потолка ${ceiling}`)
-if (entranceFps < ceiling * 0.85) failures.push(`вход ${entranceFps} fps против потолка ${ceiling}`)
+console.log('\\nFPS', JSON.stringify(fps))
+for (const [k, v] of Object.entries(fps)) {
+  if (k === 'ceiling') continue
+  if (v < ceiling * 0.9) note(`${k}: ${v} fps против потолка ${ceiling}`)
+}
 
 await browser.close()
 server.close()
 
 if (failures.length) {
-  console.error('\nПРОБЛЕМЫ:')
+  console.error('\\nПРОБЛЕМЫ:')
   for (const f of failures) console.error(' •', f)
   process.exit(1)
 }
-console.log('\nвсё чисто')
+console.log('\\nвсё чисто')

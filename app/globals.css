@@ -35,6 +35,9 @@
   --gutter: 2.5rem;
   --nav-h: 4.5rem;
 
+  --section-y: clamp(7rem, 12vh, 11rem);
+  --measure: 34rem;
+
   --hairline: rgba(255, 255, 255, 0.55);
   --hairline-soft: rgba(255, 255, 255, 0.28);
   --text-dim: rgba(255, 255, 255, 0.7);
@@ -49,12 +52,16 @@
 
 html,
 body {
-  /* Строго один экран: ни скролла, ни полосы прокрутки. */
-  height: 100%;
-  overflow: hidden;
-  overscroll-behavior: none;
+  /* Правило «строго 100vh» снято: hero остаётся первым экраном без скролла
+     внутри себя, но страница под ним едет. Полосу прокрутки прячем — кадр
+     снимается на видео. */
+  overscroll-behavior-y: none;
   background: var(--color-void);
   color: var(--color-bone);
+}
+
+html {
+  scrollbar-width: none;
 }
 
 body {
@@ -74,10 +81,24 @@ body {
   outline-offset: 4px;
 }
 
-/* Страница шрифтов — единственное место, где скролл разрешён. */
-body[data-scrollable='true'],
-html:has(body[data-scrollable='true']) {
-  overflow: auto;
+/* Заголовки. Кегль привязан к vw так, чтобы «ПРИГЛАСИТЕЛЬНЫЙ» и
+   «ХРОНОЛОГИЯ» помещались в 390 px без переносов и горизонтального скролла. */
+.t-page,
+.t-block {
+  font-weight: 700;
+  line-height: 0.95;
+  letter-spacing: -0.025em;
+  text-transform: uppercase;
+  text-wrap: balance;
+}
+
+.t-page {
+  font-size: clamp(1.9rem, 7.2vw, 4.4rem);
+}
+
+.t-block {
+  font-size: clamp(1.5rem, 5.4vw, 2.4rem);
+  letter-spacing: -0.015em;
 }
 
 @media (prefers-reduced-motion: reduce) {

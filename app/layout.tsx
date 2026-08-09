@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next'
 import { fontVars } from './fonts'
+import SiteChrome from '@/components/SiteChrome'
 import './globals.css'
 
 export const metadata: Metadata = {
@@ -13,14 +14,15 @@ export const viewport: Viewport = {
   colorScheme: 'dark',
   width: 'device-width',
   initialScale: 1,
-  maximumScale: 1,
   viewportFit: 'cover',
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="ru" className={fontVars}>
-      <body>{children}</body>
+      <body>
+        <SiteChrome>{children}</SiteChrome>
+      </body>
     </html>
   )
 }

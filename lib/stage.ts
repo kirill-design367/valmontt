@@ -3,13 +3,19 @@
 import { useEffect } from 'react'
 
 /**
- * Where the griffin's eye sits inside each source photograph, in normalised
- * image coordinates. The lens frame is anchored to these, not to the viewport,
- * so it keeps cropping the eye when `object-fit: cover` trims the picture.
+ * Где сидит глаз грифона внутри каждого снимка, в нормализованных координатах
+ * кадра. Рамка-линза привязана к этим числам, а не к вьюпорту, поэтому она
+ * держится на глазу при любом кропе `object-fit: cover`.
+ *
+ * Замеряно по самим файлам: центр габарита радужки (см. отчёт в CLAUDE.md).
+ * `aspect` — фактическое соотношение файла, а не «16:9 на глазок»: подложки
+ * 2560×1429 и 1170×2096, и на этой разнице кроп уезжает на десятки пикселей.
+ *
+ * При замене снимка меняются только эти шесть чисел.
  */
 export const EYE = {
-  desktop: { x: 0.587, y: 0.238, aspect: 16 / 9 },
-  mobile: { x: 0.505, y: 0.232, aspect: 9 / 16 },
+  desktop: { x: 0.612, y: 0.357, aspect: 2560 / 1429 },
+  mobile: { x: 0.492, y: 0.446, aspect: 1170 / 2096 },
 } as const
 
 export const MOBILE_QUERY = '(max-width: 767px)'

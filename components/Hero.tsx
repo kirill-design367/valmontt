@@ -2,23 +2,22 @@
 
 import { useRef } from 'react'
 import { useStageAnchors } from '@/lib/stage'
-import { useHeroMotion, usePillHover, useTicker } from '@/lib/motion'
+import { useHeroMotion, usePillHover } from '@/lib/motion'
+import AppLink from './AppLink'
+import { MENU } from '@/lib/routes'
+import { ASSETS, url } from '@/lib/assets'
 import s from './Hero.module.css'
 
-const BASE = process.env.NEXT_PUBLIC_BASE_PATH ?? ''
-
 const HEADLINE = ['НОЧЬ,', 'КОГДА', 'ГЕРБ', 'ОЖИВАЕТ']
-const MENU = ['ПРОГРАММА', 'ГОСТИ', 'МЕСТО', 'ЗАПИСЬ']
 const LENS_CAPTION = ['ГРИФОН', 'ПРОСНЁТСЯ', 'В ПОЛНОЧЬ']
 
 /** Тёмные абстрактные кропы того же снимка — не портреты, а фактура. */
-const AVATAR_CROPS = ['56% 64%', '71% 78%', '47% 82%', '63% 55%']
+const AVATAR_CROPS = ['47% 10%', '61% 36%', '86% 55%', '66% 74%']
 
 export default function Hero() {
   const root = useRef<HTMLElement>(null)
-  const pill = useRef<HTMLButtonElement>(null)
+  const pill = useRef<HTMLAnchorElement>(null)
 
-  useTicker()
   useStageAnchors(root)
   useHeroMotion(root)
   usePillHover(pill)
@@ -28,18 +27,20 @@ export default function Hero() {
       {/* ---------- Фон ---------- */}
       <div className={s.bgLayer} data-parallax="bg">
         <picture>
-          <source media="(max-width: 767px)" srcSet={`${BASE}/valmont-mobile.jpg`} />
+          <source media="(max-width: 767px)" srcSet={url(ASSETS.heroMobile)} />
           <img
             className={s.bgImage}
             data-bg-image
-            src={`${BASE}/valmont-desktop.jpg`}
-            alt="Грифон — герб Вальмонта: орлиная голова в три четверти, перья малины, бирюзы и янтаря, уходящие в бронзу"
+            src={url(ASSETS.heroDesktop)}
+            alt={ASSETS.heroDesktop.alt}
             fetchPriority="high"
             decoding="async"
           />
         </picture>
         <div className={s.vignette} />
       </div>
+
+      <div className={s.textScrim} aria-hidden="true" />
 
       {/* ---------- Вордмарк ---------- */}
       <div className={s.bloomLayer} aria-hidden="true">
@@ -74,13 +75,13 @@ export default function Hero() {
 
           <ul className={s.navLinks}>
             {MENU.map((item) => (
-              <li key={item}>
-                <a href="#">{item}</a>
+              <li key={item.href}>
+                <AppLink href={item.href}>{item.label}</AppLink>
               </li>
             ))}
           </ul>
 
-          <button className={s.cart} type="button" aria-label="Корзина, есть непрочитанное">
+          <span className={s.cart} aria-hidden="true">
             <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
               <path
                 d="M2 4.4h2.1l1.6 8.2h7.9l1.4-6H5.4"
@@ -93,7 +94,7 @@ export default function Hero() {
               <circle cx="12.6" cy="15.2" r="1" fill="currentColor" />
             </svg>
             <span className={s.cartDot} />
-          </button>
+          </span>
         </nav>
 
         <div className={s.headline}>
@@ -112,7 +113,7 @@ export default function Hero() {
             </p>
 
             <div className={s.pillCol}>
-              <button className={s.pill} type="button" ref={pill} data-late>
+              <AppLink className={s.pill} href="/zapis" ref={pill} data-late>
                 Забронировать
                 <svg className={s.pillIcon} viewBox="0 0 15 15" fill="none" aria-hidden="true">
                   <path
@@ -123,7 +124,7 @@ export default function Hero() {
                     strokeLinejoin="round"
                   />
                 </svg>
-              </button>
+              </AppLink>
 
               <span className={s.marker} data-late aria-hidden="true" />
             </div>
@@ -162,7 +163,7 @@ export default function Hero() {
               className={s.avatar}
               style={
                 {
-                  '--crop': `url(${BASE}/valmont-desktop.jpg)`,
+                  '--crop': `url(${url(ASSETS.heroDesktop)})`,
                   '--crop-pos': pos,
                 } as React.CSSProperties
               }

@@ -1,0 +1,313 @@
+/* Блоки главной едут поверх зафиксированного hero.
+   Фон живёт на самих секциях, а не на ленте: сплошная заливка на .flow
+   накрыла бы распорку и вместе с ней весь hero. */
+.flow {
+  position: relative;
+  z-index: 1;
+}
+
+/* распорка ровно в первый экран: hero виден, пока лента не наехала */
+.heroSpacer {
+  height: 100vh;
+  height: 100dvh;
+}
+
+.section {
+  padding: var(--section-y) var(--gutter);
+  position: relative;
+  background: var(--color-void);
+}
+
+/* тонкая линия между блоками — единственный разделитель на сайте */
+.section + .section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: var(--gutter);
+  right: var(--gutter);
+  height: 1px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* Вертикальный ярлык секции — фирменный приём, повторяется на каждой странице */
+.tag {
+  position: absolute;
+  top: var(--section-y);
+  right: var(--gutter);
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  font-size: 11px;
+  font-weight: 300;
+  letter-spacing: 0.3em;
+  color: rgba(255, 255, 255, 0.42);
+  user-select: none;
+}
+
+.line {
+  display: block;
+  overflow: hidden;
+  margin-bottom: -0.16em;
+}
+
+.line > span {
+  display: block;
+  padding-bottom: 0.16em;
+  will-change: transform;
+}
+
+/* ------------------------------------------------------------------ *
+ * Манифест — только типографика, ни одного изображения
+ * ------------------------------------------------------------------ */
+/* Ширину держит строка, а не секция: max-width на самой секции обрезал бы
+   и её фон, и сквозь блок просвечивал бы hero. */
+.manifest .line {
+  max-width: 66rem;
+}
+
+.manifest .line > span {
+  font-size: clamp(2rem, 4.2vw, 4.4rem);
+  font-weight: 700;
+  line-height: 1.06;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+}
+
+.manifest .line + .line {
+  margin-top: 0.5em;
+}
+
+/* каждая следующая фраза чуть глубже в кадр — воздух работает как пауза */
+.manifest .line:nth-child(2) {
+  padding-left: 8%;
+}
+
+.manifest .line:nth-child(3) {
+  padding-left: 16%;
+}
+
+/* ------------------------------------------------------------------ *
+ * Тизер программы
+ * ------------------------------------------------------------------ */
+.slots {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(2.25rem, 5vh, 4rem);
+  margin-top: clamp(3rem, 6vh, 5rem);
+}
+
+.slot {
+  display: flex;
+  align-items: baseline;
+  gap: clamp(1.5rem, 5vw, 5rem);
+  text-decoration: none;
+  color: var(--color-bone);
+  padding-bottom: 1.4rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.slotTime {
+  font-size: clamp(2.5rem, 6vw, 5.5rem);
+  font-weight: 700;
+  line-height: 0.9;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+  flex: none;
+  transition: color 0.45s var(--ease-out-quint);
+}
+
+.slotName {
+  font-size: clamp(0.95rem, 1.5vw, 1.35rem);
+  font-weight: 300;
+  letter-spacing: 0.02em;
+  color: rgba(255, 255, 255, 0.72);
+  transition: transform 0.5s var(--ease-out-quint), color 0.45s var(--ease-out-quint);
+}
+
+.slot:hover .slotTime,
+.slot:focus-visible .slotTime {
+  color: var(--color-crimson);
+}
+
+.slot:hover .slotName,
+.slot:focus-visible .slotName {
+  transform: translateX(clamp(0.75rem, 2vw, 2rem));
+  color: var(--color-bone);
+}
+
+/* ------------------------------------------------------------------ *
+ * Тизер бестиария — горизонтальная лента
+ * ------------------------------------------------------------------ */
+.beasts {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+  gap: clamp(0.75rem, 1.4vw, 1.5rem);
+  margin-top: clamp(3rem, 6vh, 5rem);
+  text-decoration: none;
+}
+
+.beastCard {
+  position: relative;
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  background: #0b0b0f;
+}
+
+.beastCard img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scale(1.02);
+  transition: transform 0.9s var(--ease-out-expo);
+}
+
+.beasts:hover .beastCard img {
+  transform: scale(1.02);
+}
+
+.beastCard:hover img {
+  transform: scale(1.07);
+}
+
+.beastCard::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(200deg, rgba(7, 7, 10, 0) 42%, rgba(7, 7, 10, 0.72) 100%);
+}
+
+/* имя вдоль края карточки — тот же приём, что вордмарк в hero */
+.beastName {
+  position: absolute;
+  z-index: 2;
+  left: 0.85rem;
+  top: 0.9rem;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  font-size: clamp(1.05rem, 1.7vw, 1.6rem);
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  color: var(--color-bone);
+}
+
+.beastTodo {
+  position: absolute;
+  z-index: 2;
+  right: 0.7rem;
+  bottom: 0.7rem;
+  font-size: 9px;
+  font-weight: 300;
+  letter-spacing: 0.24em;
+  color: rgba(255, 255, 255, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 999px;
+  padding: 3px 8px;
+}
+
+/* ------------------------------------------------------------------ *
+ * Финал — зеркало hero: текст справа, пустота слева
+ * ------------------------------------------------------------------ */
+.final {
+  min-height: 78vh;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  text-align: right;
+}
+
+.finalInner {
+  max-width: 32rem;
+}
+
+.finalDate .line > span {
+  font-size: clamp(2.6rem, 6.4vw, 6.5rem);
+  font-weight: 700;
+  line-height: 0.92;
+  letter-spacing: -0.03em;
+  text-transform: uppercase;
+}
+
+.finalPlace {
+  margin-top: 1.5rem;
+  font-size: 13px;
+  font-weight: 300;
+  letter-spacing: 0.24em;
+  color: var(--text-dim);
+  text-transform: uppercase;
+}
+
+.finalCta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin-top: 2.75rem;
+  padding: 0.85rem 1.1rem 0.85rem 1.5rem;
+  border-radius: 999px;
+  background: var(--color-bone);
+  color: #050507;
+  font-size: 13px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: transform 0.5s var(--ease-out-quint);
+}
+
+.finalCta:hover {
+  transform: scale(1.045);
+}
+
+.finalCta svg {
+  width: 15px;
+  height: 15px;
+}
+
+/* ------------------------------------------------------------------ *
+ * Мобильная — отдельная композиция
+ * ------------------------------------------------------------------ */
+@media (max-width: 767px) {
+  .tag {
+    display: none;
+  }
+
+  .manifest .line:nth-child(2),
+  .manifest .line:nth-child(3) {
+    padding-left: 0;
+  }
+
+  .manifest .line > span {
+    font-size: clamp(1.6rem, 7.6vw, 2.2rem);
+  }
+
+  .slot {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .slotTime {
+    font-size: clamp(2.4rem, 13vw, 3.4rem);
+  }
+
+  /* лента бестиария едет вбок пальцем, а не жмётся в четыре колонки */
+  .beasts {
+    grid-auto-columns: 62vw;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    margin-inline: calc(var(--gutter) * -1);
+    padding-inline: var(--gutter);
+    scrollbar-width: none;
+  }
+
+  .beasts::-webkit-scrollbar {
+    display: none;
+  }
+
+  .beastCard {
+    scroll-snap-align: start;
+  }
+
+  .final {
+    min-height: 62vh;
+    text-align: left;
+    justify-content: flex-start;
+  }
+}
