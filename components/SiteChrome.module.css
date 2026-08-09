@@ -20,6 +20,7 @@
 .name,
 .nameBloom {
   display: block;
+  font-family: var(--font-display);
   writing-mode: vertical-rl;
   text-orientation: mixed;
   font-size: clamp(3.5rem, 11dvh, 8rem);

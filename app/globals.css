@@ -17,7 +17,10 @@
   --color-plume-amber: #d1863c;
   --color-plume-bronze: #6b4a2a;
 
-  --font-display: var(--font-onest), 'Onest', system-ui, sans-serif;
+  /* акцидентный — вордмарк и крупные заголовки */
+  --font-display: var(--font-display-src), system-ui, sans-serif;
+  /* нейтральный — интерфейс, лиды, подписи */
+  --font-text: var(--font-text-src), system-ui, sans-serif;
 
   /* премиальные кривые — линейных переходов на странице нет */
   --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
@@ -65,7 +68,7 @@ html {
 }
 
 body {
-  font-family: var(--font-display);
+  font-family: var(--font-text);
   font-synthesis-weight: none;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
@@ -85,6 +88,7 @@ body {
    «ХРОНОЛОГИЯ» помещались в 390 px без переносов и горизонтального скролла. */
 .t-page,
 .t-block {
+  font-family: var(--font-display);
   font-weight: 700;
   line-height: 0.95;
   letter-spacing: -0.025em;

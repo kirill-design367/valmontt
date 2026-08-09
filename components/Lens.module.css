@@ -1,0 +1,136 @@
+.lens {
+  position: relative;
+  width: clamp(15rem, 16.2vw, 21rem);
+  height: clamp(20rem, 22vw, 28rem);
+  border: 1px solid var(--hairline);
+  border-radius: 30px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 1.15rem 1.35rem 1.4rem;
+  will-change: transform;
+  cursor: pointer;
+  pointer-events: auto;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.lens:focus-visible {
+  outline: 1px solid var(--color-bone);
+  outline-offset: 4px;
+}
+
+/* ------------------------------------------------------------------ *
+ * Иней. Радиусы фильтров заданы намертво и не анимируются: движение —
+ * только прозрачность. В покое GSAP держит autoAlpha 0, то есть
+ * visibility: hidden, и композитор эти слои не считает вовсе.
+ * ------------------------------------------------------------------ */
+.frostBlur,
+.frostEdge {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  visibility: hidden;
+  opacity: 0;
+}
+
+.frostBlur {
+  backdrop-filter: blur(13px) saturate(0.72) brightness(1.06);
+  -webkit-backdrop-filter: blur(13px) saturate(0.72) brightness(1.06);
+  background: rgba(210, 218, 228, 0.07);
+}
+
+/* опушка по краям — она проступает первой, поэтому иней читается
+   как наросший от кромки внутрь */
+.frostEdge {
+  background: radial-gradient(
+    closest-side,
+    rgba(255, 255, 255, 0) 34%,
+    rgba(226, 234, 244, 0.09) 74%,
+    rgba(226, 234, 244, 0.2) 100%
+  );
+}
+
+.arrow {
+  position: relative;
+  z-index: 2;
+  align-self: flex-end;
+  width: 17px;
+  height: 17px;
+  color: var(--color-bone);
+}
+
+/* ------------------------------------------------------------------ *
+ * Подписи. Оба набора лежат в одной ячейке грида — переключение не
+ * двигает соседей и не вызывает пересчёт лейаута.
+ * ------------------------------------------------------------------ */
+.caption {
+  position: relative;
+  z-index: 2;
+  display: grid;
+}
+
+.caption > * {
+  grid-area: 1 / 1;
+}
+
+.stack,
+.facts {
+  display: block;
+}
+
+.row {
+  display: block;
+  overflow: hidden;
+  position: relative;
+}
+
+.row > span {
+  display: block;
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 1.32;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--color-bone);
+  white-space: nowrap;
+  will-change: transform;
+}
+
+/* размытый дубль исходных строк: фиксированный blur, только гаснет */
+.ghost {
+  position: absolute;
+  inset: 0;
+  filter: blur(5px);
+  visibility: hidden;
+  opacity: 0;
+}
+
+.facts .row > span {
+  visibility: hidden;
+  opacity: 0;
+}
+
+.crimson {
+  color: var(--color-crimson);
+}
+
+@media (max-width: 767px) {
+  .lens {
+    width: 10.5rem;
+    height: 13.5rem;
+    border-radius: 20px;
+    padding: 0.8rem 0.9rem 1rem;
+  }
+
+  .row > span {
+    font-size: 12px;
+  }
+
+  .arrow {
+    width: 13px;
+    height: 13px;
+  }
+}

@@ -42,6 +42,7 @@
 
 /* Имя вертикально вдоль края. Сторона чередуется: слева, справа, слева, справа */
 .name {
+  font-family: var(--font-display);
   position: absolute;
   top: 50%;
   z-index: 3;

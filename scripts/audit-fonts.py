@@ -4,17 +4,19 @@ from fontTools.ttLib import TTFont
 
 UA = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36"
 
+# Акцидентные кандидаты на вордмарк и крупные заголовки + текстовые на интерфейс
 CANDIDATES = {
-    "Onest":        "Onest:wght@100..900",
-    "Geologica":    "Geologica:wght@100..900",
-    "GolosText":    "Golos+Text:wght@400..900",
+    # акцидентные
     "Unbounded":    "Unbounded:wght@200..900",
-    "Manrope":      "Manrope:wght@200..800",
-    "Commissioner": "Commissioner:wght@100..900",
+    "Geologica":    "Geologica:wght@100..900",
+    "Oswald":       "Oswald:wght@200..700",
+    "Alumni":       "Alumni+Sans:wght@100..900",
+    # текстовые
+    "Onest":        "Onest:wght@100..900",
     "Inter":        "Inter:wght@100..900",
-    "WixMadeforDisplay": "Wix+Madefor+Display:wght@400..800",
-    "Nunito":       "Nunito:wght@200..1000",
-    "Rubik":        "Rubik:wght@300..900",
+    "GolosText":    "Golos+Text:wght@400..900",
+    "Commissioner": "Commissioner:wght@100..900",
+    "Manrope":      "Manrope:wght@200..800",
 }
 
 # Full modern Russian alphabet, upper + lower, plus Ё/ё and the tricky ones.

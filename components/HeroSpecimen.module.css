@@ -1,0 +1,193 @@
+/* Кадр hero в пропорции 16:9. Все кегли заданы в cqw, поэтому композиция
+   масштабируется целиком и остаётся сравнимой между парами. */
+.frame {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: var(--color-void);
+  container-type: inline-size;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.plate {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.scrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    100deg,
+    rgba(0, 0, 0, 0.4) 0%,
+    rgba(0, 0, 0, 0.28) 26%,
+    rgba(0, 0, 0, 0) 58%
+  );
+}
+
+/* --- навигация --- */
+.nav {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4.2cqw;
+  display: flex;
+  align-items: center;
+  gap: 1.5cqw;
+  padding: 0 2.3cqw;
+  z-index: 4;
+}
+
+.burger {
+  display: flex;
+  flex-direction: column;
+  gap: 0.32cqw;
+}
+
+.burger span {
+  display: block;
+  height: 1px;
+  background: #fff;
+}
+
+.burger span:first-child {
+  width: 1.15cqw;
+}
+
+.burger span:last-child {
+  width: 0.68cqw;
+}
+
+.links {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 5.4cqw;
+  list-style: none;
+}
+
+.links li {
+  font-family: var(--f-text);
+  font-size: 0.58cqw;
+  font-weight: 300;
+  letter-spacing: 0.28em;
+  color: #fff;
+  white-space: nowrap;
+}
+
+.links li:nth-child(2) {
+  margin-right: 5.6cqw;
+}
+
+.cart {
+  position: relative;
+  color: #fff;
+  display: flex;
+}
+
+.cart svg {
+  width: 0.95cqw;
+  height: 0.95cqw;
+}
+
+.dot {
+  position: absolute;
+  top: -0.1cqw;
+  right: -0.1cqw;
+  width: 0.32cqw;
+  height: 0.32cqw;
+  border-radius: 50%;
+  background: var(--color-crimson);
+}
+
+/* --- вордмарк: обрезан краями рамки, как в бою --- */
+.wordmarkLayer {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 5.3cqw;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+}
+
+.wordmark,
+.wordmarkBloom {
+  display: block;
+  font-family: var(--f-display);
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  font-size: calc(7.4cqw * var(--wordmark-k));
+  font-weight: var(--w-display);
+  line-height: 1;
+  letter-spacing: 0.31em;
+  color: #fff;
+  white-space: nowrap;
+}
+
+.wordmarkBloom {
+  position: absolute;
+  inset: 0;
+  filter: blur(2.4cqw);
+  opacity: 0.6;
+}
+
+/* --- текстовый блок --- */
+.copy {
+  position: absolute;
+  left: 2.3cqw;
+  top: 40%;
+  z-index: 4;
+  width: 34%;
+}
+
+.headline span {
+  display: block;
+  font-family: var(--f-display);
+  font-size: 3.6cqw;
+  font-weight: var(--w-display);
+  line-height: 0.95;
+  letter-spacing: -0.015em;
+  color: #fff;
+}
+
+.lede {
+  display: flex;
+  align-items: flex-start;
+  gap: 2.6cqw;
+  margin-top: 1.9cqw;
+}
+
+.lede p span {
+  display: block;
+  font-family: var(--f-text);
+  font-size: 0.68cqw;
+  font-weight: 300;
+  line-height: 1.55;
+  color: rgba(255, 255, 255, 0.7);
+  white-space: nowrap;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5cqw;
+  flex: none;
+  padding: 0.66cqw 0.9cqw 0.66cqw 1.18cqw;
+  border-radius: 999px;
+  background: #fff;
+  color: #050507;
+  font-family: var(--f-text);
+  font-size: 0.68cqw;
+  font-weight: 500;
+}
+
+.pill svg {
+  width: 0.78cqw;
+  height: 0.78cqw;
+}

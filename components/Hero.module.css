@@ -13,14 +13,6 @@
   height: 100dvh;
   overflow: hidden;
   background: var(--color-void);
-  visibility: hidden; /* GSAP снимает на первом кадре таймлайна */
-}
-
-/* Без скриптов кадр всё равно должен быть виден */
-@media (scripting: none) {
-  .hero {
-    visibility: visible;
-  }
 }
 
 /* ------------------------------------------------------------------ *
@@ -38,6 +30,68 @@
   object-fit: cover;
   object-position: center;
   transform-origin: 58% 30%; /* приближаемся к голове, а не к центру кадра */
+  /* Проявление фона отдано CSS, а не GSAP: под GSAP первая отрисовка ждала
+     загрузки бандла и декодирования снимка, и LCP уезжал за семь секунд.
+     Теперь кадр начинает проявляться сразу после парсинга стилей. */
+  animation: heroPlate 1.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes heroPlate {
+  from {
+    opacity: 0;
+    transform: scale(1.08);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Вордмарк — LCP-элемент кадра, поэтому его вход тоже на CSS: под GSAP
+   он ждал бандла, и Lighthouse засчитывал LCP в семь с лишним секунд.
+   «Выезжает с блюром» по-прежнему делает перекрёстное затухание с дублем
+   фиксированного размытия — радиус фильтра не анимируется. */
+.hero [data-wordmark-slide] {
+  animation: wordmarkSlide 1.5s cubic-bezier(0.16, 1, 0.3, 1) 0.3s both;
+}
+
+.hero [data-wordmark] {
+  animation: wordmarkIn 1.5s cubic-bezier(0.16, 1, 0.3, 1) 0.3s both;
+}
+
+.hero [data-entry-ghost] {
+  animation: ghostOut 1.3s cubic-bezier(0.16, 1, 0.3, 1) 0.3s both;
+}
+
+@keyframes wordmarkSlide {
+  from { transform: translateY(12%); }
+  to { transform: translateY(0); }
+}
+
+@keyframes wordmarkIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes ghostOut {
+  from { opacity: 0.9; }
+  to { opacity: 0; }
+}
+
+/* Всё, что доигрывает GSAP, спрятано стилями — иначе на медленной сети
+   элементы мигнут в конечном положении до старта таймлайна. */
+.hero [data-bloom],
+.hero [data-line],
+.hero [data-late] {
+  visibility: hidden;
+}
+
+@media (scripting: none), (prefers-reduced-motion: reduce) {
+  .hero [data-bloom],
+  .hero [data-line],
+  .hero [data-late] {
+    visibility: visible;
+  }
 }
 
 /* Затемнение к краям + холодный провал слева, чтобы белый заголовок держался */
@@ -109,6 +163,7 @@
 .wordmark,
 .bloom {
   display: block;
+  font-family: var(--font-display);
   writing-mode: vertical-rl;
   text-orientation: mixed;
   font-size: var(--wordmark-size);
@@ -282,6 +337,7 @@
 
 .line > span {
   display: block;
+  font-family: var(--font-display);
   padding-bottom: 0.17em;
   font-size: clamp(2.75rem, 3.6vw, 5.4rem);
   font-weight: 700;
@@ -482,6 +538,11 @@
   .navLinks,
   .avatars {
     display: none;
+  }
+
+  /* фон аватарок не должен качаться там, где их не видно */
+  .avatar {
+    background-image: none;
   }
 
   /* на телефоне текст лежит сверху, значит и растяжка сверху вниз */

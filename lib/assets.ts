@@ -28,6 +28,9 @@ export const ASSETS = {
   heroDesktop: a('/valmont-desktop.jpg', 'Грифон — герб Вальмонта, орлиная голова в три четверти'),
   heroMobile: a('/valmont-mobile.jpg', 'Грифон — герб Вальмонта, крупный план глаза'),
 
+  /** кроп глаза для финального блока — вырезан из той же подложки */
+  porogEye: a('/porog-eye.jpg', 'Глаз грифона крупным планом'),
+
   /* --- бестиарий -------------------------------------------------------- */
   beastGrifon: a('/valmont-desktop.jpg', 'Грифон: орлиная голова, перья малины и бирюзы в потемневшей бронзе'),
   beastViverna: a('/placeholder/beast-viverna.jpg', 'Виверна — временный кадр', true),
@@ -49,3 +52,9 @@ export const pendingAssets = () =>
   Object.entries(ASSETS)
     .filter(([, v]) => v.todo)
     .map(([k]) => k)
+
+/** Пути ко всем трём форматам одного кадра. */
+export const formats = (asset: Asset) => {
+  const base = `${BASE}${asset.src}`.replace(/\.jpg$/, '')
+  return { avif: `${base}.avif`, webp: `${base}.webp`, jpg: `${BASE}${asset.src}` }
+}

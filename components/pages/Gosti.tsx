@@ -5,7 +5,8 @@ import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import PageShell from '../PageShell'
 import { FULL } from '@/lib/reveal'
-import { ASSETS, url, type Asset } from '@/lib/assets'
+import { ASSETS, type Asset } from '@/lib/assets'
+import Plate from '../Plate'
 import s from './Gosti.module.css'
 
 gsap.registerPlugin(ScrollTrigger)
@@ -91,13 +92,7 @@ export default function Gosti() {
           >
             <div className={s.sticky} data-sticky>
               <div className={s.plate}>
-                <img
-                  src={url(beast.asset)}
-                  alt={beast.asset.alt}
-                  data-plate
-                  loading={i === 0 ? 'eager' : 'lazy'}
-                  decoding="async"
-                />
+                <Plate asset={beast.asset} data-plate priority={i === 0} />
               </div>
               <div className={s.shade} />
 

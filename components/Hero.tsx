@@ -4,14 +4,18 @@ import { useRef } from 'react'
 import { useStageAnchors } from '@/lib/stage'
 import { useHeroMotion, usePillHover } from '@/lib/motion'
 import AppLink from './AppLink'
+import Lens from './Lens'
+import ScrollDot from './ScrollDot'
 import { MENU } from '@/lib/routes'
-import { ASSETS, url } from '@/lib/assets'
+import { ASSETS, formats, url } from '@/lib/assets'
 import s from './Hero.module.css'
 
 const HEADLINE = ['НОЧЬ,', 'КОГДА', 'ГЕРБ', 'ОЖИВАЕТ']
-const LENS_CAPTION = ['ГРИФОН', 'ПРОСНЁТСЯ', 'В ПОЛНОЧЬ']
 
 /** Тёмные абстрактные кропы того же снимка — не портреты, а фактура. */
+const desk = formats(ASSETS.heroDesktop)
+const mob = formats(ASSETS.heroMobile)
+
 const AVATAR_CROPS = ['47% 10%', '61% 36%', '86% 55%', '66% 74%']
 
 export default function Hero() {
@@ -27,11 +31,15 @@ export default function Hero() {
       {/* ---------- Фон ---------- */}
       <div className={s.bgLayer} data-parallax="bg">
         <picture>
-          <source media="(max-width: 767px)" srcSet={url(ASSETS.heroMobile)} />
+          <source media="(max-width: 767px)" srcSet={mob.avif} type="image/avif" />
+          <source media="(max-width: 767px)" srcSet={mob.webp} type="image/webp" />
+          <source media="(max-width: 767px)" srcSet={mob.jpg} />
+          <source srcSet={desk.avif} type="image/avif" />
+          <source srcSet={desk.webp} type="image/webp" />
           <img
             className={s.bgImage}
             data-bg-image
-            src={url(ASSETS.heroDesktop)}
+            src={desk.jpg}
             alt={ASSETS.heroDesktop.alt}
             fetchPriority="high"
             decoding="async"
@@ -126,7 +134,7 @@ export default function Hero() {
                 </svg>
               </AppLink>
 
-              <span className={s.marker} data-late aria-hidden="true" />
+              <ScrollDot />
             </div>
           </div>
         </div>
@@ -135,25 +143,7 @@ export default function Hero() {
       {/* ---------- Передний план: линза на глазу + аватарки ---------- */}
       <div className={s.foreground} data-parallax="fg">
         <div className={s.lensPos}>
-          <div className={s.lens} data-lens data-late>
-            <svg className={s.lensArrow} viewBox="0 0 17 17" fill="none" aria-hidden="true">
-              <path
-                d="M5 12 12 5M6.3 5H12v5.7"
-                stroke="currentColor"
-                strokeWidth="1"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-            <p className={s.lensCaption}>
-              {LENS_CAPTION.map((line) => (
-                <span key={line}>
-                  {line}
-                  <br />
-                </span>
-              ))}
-            </p>
-          </div>
+          <Lens />
         </div>
 
         <div className={s.avatars} data-late aria-hidden="true">
@@ -163,7 +153,10 @@ export default function Hero() {
               className={s.avatar}
               style={
                 {
-                  '--crop': `url(${url(ASSETS.heroDesktop)})`,
+                  // image-set даёт браузеру выбрать формат; на телефоне
+                  // аватарки скрыты и фон снимается совсем — иначе кадр
+                  // качается вхолостую и утяжеляет LCP
+                  '--crop': `image-set(url(${desk.avif}) type("image/avif"), url(${desk.webp}) type("image/webp"), url(${desk.jpg}) type("image/jpeg"))`,
                   '--crop-pos': pos,
                 } as React.CSSProperties
               }

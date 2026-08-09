@@ -61,34 +61,10 @@ export function useHeroMotion(root: React.RefObject<HTMLElement | null>) {
           },
         })
 
-        tl.set(scope, { autoAlpha: 1 })
-          // фон проявляется из чёрного
-          .fromTo(
-            '[data-bg-image]',
-            { scale: 1.08, opacity: 0 },
-            { scale: 1, opacity: 1, duration: 1.7, ease: 'power2.out' },
-            0,
-          )
-          // вордмарк выезжает снизу вверх с блюром: едет весь стек,
-          // а «наведение на резкость» — это перекрёстное затухание
-          .fromTo(
-            '[data-wordmark-slide]',
-            { yPercent: 12 },
-            { yPercent: 0, duration: 1.5, ease: 'power3.out' },
-            0.3,
-          )
-          .fromTo(
-            '[data-wordmark]',
-            { opacity: 0 },
-            { opacity: 1, duration: 1.5, ease: 'power2.out' },
-            0.3,
-          )
-          .fromTo(
-            '[data-entry-ghost]',
-            { opacity: 0.9 },
-            { opacity: 0, duration: 1.3, ease: 'power2.out' },
-            0.3,
-          )
+        // Стили держат эти группы скрытыми до старта таймлайна; снимаем
+        // visibility одним махом, дальше работает только прозрачность.
+        tl.set('[data-bloom], [data-line], [data-late]', { visibility: 'visible' })
+          // вордмарк и его дубль ведёт CSS — см. Hero.module.css
           // Блум разгорается с задержкой 0.3 с после появления букв.
           // Только прозрачность и разный старт у двух дублей — свечение
           // «набухает» без единого пересчёта фильтра.
@@ -118,12 +94,9 @@ export function useHeroMotion(root: React.RefObject<HTMLElement | null>) {
             1.25,
           )
 
-        const img = scope.querySelector<HTMLImageElement>('[data-bg-image]')
-        const ready = img?.decode
-          ? img.decode().catch(() => undefined)
-          : Promise.resolve()
-        // страховка: если декодирование зависло, кадр всё равно соберётся
-        Promise.race([ready, new Promise((r) => setTimeout(r, 1200))]).then(() => tl.play())
+        // Таймлайн больше не ждёт декодирования: фон живёт своей CSS-анимацией,
+        // а типографике ждать нечего.
+        tl.play()
 
         /* рамка-линза еле заметно дышит, цикл 4 с */
         const lens = one('[data-lens]')
@@ -181,10 +154,6 @@ export function useHeroMotion(root: React.RefObject<HTMLElement | null>) {
        * Сокращённое движение — кадр собирается сразу, без циклов
        * ---------------------------------------------------------------- */
       mm.add('(prefers-reduced-motion: reduce)', () => {
-        gsap.set(scope, { autoAlpha: 1 })
-        gsap.set('[data-bg-image]', { scale: 1, opacity: 1 })
-        gsap.set('[data-wordmark-slide]', { yPercent: 0 })
-        gsap.set('[data-wordmark]', { opacity: 1 })
         gsap.set('[data-entry-ghost]', { display: 'none' })
         gsap.set('[data-bloom]', { opacity: (i, el: HTMLElement) => (el.dataset.bloom === 'far' ? 0.62 : 0.85) })
         gsap.set('[data-line]', { yPercent: 0 })

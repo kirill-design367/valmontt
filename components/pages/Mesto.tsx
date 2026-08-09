@@ -5,7 +5,8 @@ import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import PageShell from '../PageShell'
 import { FULL } from '@/lib/reveal'
-import { ASSETS, url, type Asset } from '@/lib/assets'
+import { ASSETS, type Asset } from '@/lib/assets'
+import Plate from '../Plate'
 import s from './Mesto.module.css'
 
 gsap.registerPlugin(ScrollTrigger)
@@ -67,12 +68,7 @@ export default function Mesto() {
         <div className={s.rail} ref={rail}>
           {FRAMES.map((frame, i) => (
             <section className={s.frame} key={frame.name}>
-              <img
-                src={url(frame.asset)}
-                alt={frame.asset.alt}
-                loading={i === 0 ? 'eager' : 'lazy'}
-                decoding="async"
-              />
+              <Plate asset={frame.asset} priority={i === 0} />
               <span className={s.capIndex}>
                 КАДР {['ПЕРВЫЙ', 'ВТОРОЙ', 'ТРЕТИЙ', 'ЧЕТВЁРТЫЙ'][i]}
               </span>

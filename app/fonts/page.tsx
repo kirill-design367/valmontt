@@ -1,65 +1,68 @@
 import type { Metadata } from 'next'
-import { FONT_SHORTLIST } from '../fonts'
+import { PAIRS, specimenVars } from '../fonts'
+import HeroSpecimen from '@/components/HeroSpecimen'
+import AppLink from '@/components/AppLink'
 import s from './fonts.module.css'
 
 export const metadata: Metadata = {
-  title: 'ВАЛЬМОНТ — отбор гарнитуры',
-  description: 'Три кириллических гротеска для вертикального вордмарка ВАЛЬМОНТ.',
+  title: 'ВАЛЬМОНТ — отбор пары гарнитур',
+  description: 'Три пары «акцидентный × текстовый» на полной композиции hero.',
 }
 
 export default function FontsPage() {
   return (
-    <div className={s.page}>
+    <div className={`${s.page} ${specimenVars}`}>
       <header className={s.head}>
-        <span className={s.eyebrow}>Отбор гарнитуры</span>
-        <h1 className={s.title}>
-          Три гротеска
+        <span className={s.eyebrow}>Отбор пары гарнитур</span>
+        <h1 className="t-page">
+          Три пары
           <br />
-          для вордмарка
+          на одном кадре
         </h1>
         <p className={s.intro}>
-          Каждая гарнитура проверена по составу глифов в самом файле, а не по описанию на
-          сайте: скрипт <b>scripts/audit-fonts.py</b> открывает бинарник кириллического
-          подмножества и сверяет таблицу cmap с полным русским алфавитом, включая Ё.
-          Ниже слово набрано вертикально в финальном кегле и обрезано сверху и снизу —
-          ровно в тех условиях, в которых оно живёт в hero.
+          Не отдельное слово, а вся композиция hero каждой парой: вордмарк,
+          заголовок в четыре строки, подзаголовок, пункты навигации — в финальных
+          кеглях, на настоящем фоне. Вордмарк обрезан краями кадра так же, как в
+          бою. Состав глифов у всех шести проверен по таблице cmap в самом
+          бинарнике (<b>scripts/audit-fonts.py</b>), а не по описанию на сайте:
+          полный русский алфавит, включая Ё.
         </p>
-        <a className={s.back} href="../">
+        <AppLink className={s.back} href="/">
           ← К обложке
-        </a>
+        </AppLink>
       </header>
 
       <div className={s.grid}>
-        {FONT_SHORTLIST.map((font) => (
-          <section className={s.card} key={font.id}>
-            <div>
-              <div className={s.meta}>
-                <h2 className={s.name} style={{ fontFamily: `var(${font.varName})` }}>
-                  {font.name}
-                </h2>
-                <span className={s.role}>{font.role}</span>
-              </div>
-
-              <p className={s.note}>{font.note}</p>
-
-              <dl className={s.facts}>
-                <div>
-                  Начертаний: <b>{font.weights}</b> · диапазон веса <b>{font.axis}</b>
-                </div>
-                <div>
-                  Кириллица в файле: <b>полная А–Я, а–я, Ё/ё</b>
-                </div>
-              </dl>
-
-              <p className={s.letters} style={{ fontFamily: `var(${font.varName})` }}>
-                ЖФЩЪЫЬЙЦШЭЮЯ
-              </p>
+        {PAIRS.map((pair) => (
+          <section className={s.card} key={pair.id}>
+            <div className={s.meta}>
+              <h2 className={s.name} style={{ fontFamily: `var(${pair.displayVar})` }}>
+                {pair.title}
+              </h2>
+              <span className={s.role}>{pair.role}</span>
             </div>
 
-            <div className={s.stage}>
-              <span className={s.specimen} style={{ fontFamily: `var(${font.varName})` }}>
-                ВАЛЬМОНТ
-              </span>
+            <HeroSpecimen pair={pair} />
+
+            <div className={s.below}>
+              <p className={s.note}>{pair.note}</p>
+              <dl className={s.facts}>
+                <div>
+                  Кегль вордмарка: <b>×{pair.wordmarkScale.toFixed(2)}</b> от рабочего
+                </div>
+                <div>
+                  Проблемные знаки:{' '}
+                  <b style={{ fontFamily: `var(${pair.displayVar})`, fontWeight: pair.displayWeight }}>
+                    ЖФЩЪЫЬЙЦШЭЮЯ
+                  </b>
+                </div>
+                <div>
+                  Текстовый в 11px:{' '}
+                  <b className={s.tiny} style={{ fontFamily: `var(${pair.textVar})` }}>
+                    ПРОГРАММА · ГОСТИ · МЕСТО · ЗАПИСЬ
+                  </b>
+                </div>
+              </dl>
             </div>
           </section>
         ))}

@@ -64,6 +64,7 @@
 
 /* Титул страницы вертикально вдоль правого края — фирменный приём */
 .title {
+  font-family: var(--font-display);
   position: fixed;
   top: 50%;
   right: 1.1rem;
