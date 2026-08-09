@@ -66,8 +66,8 @@
 
 .manifest .line > span {
   font-family: var(--font-display);
-  font-size: clamp(2rem, 4.2vw, 4.4rem);
-  font-weight: 700;
+  font-size: clamp(1.85rem, 3.9vw, 4rem);
+  font-weight: 400;
   line-height: 1.06;
   letter-spacing: -0.02em;
   text-transform: uppercase;
@@ -108,8 +108,8 @@
 
 .slotTime {
   font-family: var(--font-display);
-  font-size: clamp(2.5rem, 6vw, 5.5rem);
-  font-weight: 700;
+  font-size: clamp(2.3rem, 5.4vw, 5rem);
+  font-weight: 400;
   line-height: 0.9;
   letter-spacing: -0.03em;
   font-variant-numeric: tabular-nums;
@@ -187,8 +187,8 @@
   top: 0.9rem;
   writing-mode: vertical-rl;
   text-orientation: mixed;
-  font-size: clamp(1.05rem, 1.7vw, 1.6rem);
-  font-weight: 800;
+  font-size: clamp(1rem, 1.55vw, 1.45rem);
+  font-weight: 400;
   letter-spacing: 0.14em;
   color: var(--color-bone);
 }
@@ -248,8 +248,8 @@
 
 .finalDate .line > span {
   font-family: var(--font-display);
-  font-size: clamp(2.6rem, 6.4vw, 6.5rem);
-  font-weight: 700;
+  font-size: clamp(2.4rem, 5.8vw, 5.9rem);
+  font-weight: 400;
   line-height: 0.92;
   letter-spacing: -0.03em;
   text-transform: uppercase;
@@ -298,7 +298,7 @@
   }
 
   .manifest .line > span {
-    font-size: clamp(1.6rem, 7.6vw, 2.2rem);
+    font-size: clamp(1.45rem, 6.9vw, 2rem);
   }
 
   .slot {
@@ -308,7 +308,7 @@
   }
 
   .slotTime {
-    font-size: clamp(2.4rem, 13vw, 3.4rem);
+    font-size: clamp(2.1rem, 11.5vw, 3rem);
   }
 
   /* лента бестиария едет вбок пальцем, а не жмётся в четыре колонки */

@@ -72,8 +72,8 @@
   transform: translateY(-50%);
   writing-mode: vertical-rl;
   text-orientation: mixed;
-  font-size: clamp(2.5rem, 6.4dvh, 4.5rem);
-  font-weight: 800;
+  font-size: clamp(2.2rem, 5.8dvh, 4rem);
+  font-weight: 400;
   letter-spacing: 0.22em;
   line-height: 1;
   color: rgba(255, 255, 255, 0.07);

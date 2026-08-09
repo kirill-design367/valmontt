@@ -79,8 +79,8 @@
 .time {
   display: block;
   font-family: var(--font-display);
-  font-size: clamp(2.75rem, 7vw, 6rem);
-  font-weight: 700;
+  font-size: clamp(2.5rem, 6.3vw, 5.4rem);
+  font-weight: 400;
   line-height: 0.88;
   letter-spacing: -0.035em;
   font-variant-numeric: tabular-nums;
@@ -128,7 +128,7 @@
   }
 
   .time {
-    font-size: clamp(2.5rem, 14vw, 3.6rem);
+    font-size: clamp(2.2rem, 12.5vw, 3.2rem);
   }
 
   .lede {

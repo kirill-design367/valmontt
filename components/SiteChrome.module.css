@@ -23,8 +23,8 @@
   font-family: var(--font-display);
   writing-mode: vertical-rl;
   text-orientation: mixed;
-  font-size: clamp(3.5rem, 11dvh, 8rem);
-  font-weight: 800;
+  font-size: clamp(2.8rem, 8.8dvh, 6.5rem);
+  font-weight: 400;
   line-height: 1;
   letter-spacing: 0.26em;
   color: var(--color-bone);

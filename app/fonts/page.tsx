@@ -1,122 +1,99 @@
 import type { Metadata } from 'next'
-import { PAIRS, CANDIDATES, specimenVars } from '../fonts'
-import HeroSpecimen from '@/components/HeroSpecimen'
+import { STYLE_SETS } from '../fonts'
 import AppLink from '@/components/AppLink'
 import s from './fonts.module.css'
 
 export const metadata: Metadata = {
-  title: 'ВАЛЬМОНТ — отбор пары гарнитур',
-  description: 'Три пары «акцидентный × текстовый» на полной композиции hero.',
+  title: 'ВАЛЬМОНТ — Pilar Regular',
+  description: 'Стилистические наборы Pilar и сравнение заголовка hero.',
 }
 
-const heroUrl = `${process.env.NEXT_PUBLIC_BASE_PATH ?? ''}/valmont-desktop.jpg`
+const plate = `${process.env.NEXT_PUBLIC_BASE_PATH ?? ''}/valmont-desktop.jpg`
+const HEADLINE = ['НОЧЬ,', 'КОГДА', 'ГЕРБ', 'ОЖИВАЕТ']
 
 export default function FontsPage() {
   return (
-    <div className={`${s.page} ${specimenVars}`}>
+    <div className={s.page}>
       <header className={s.head}>
-        <span className={s.eyebrow}>Отбор пары гарнитур</span>
-        <h1 className="t-page">
-          Три пары
-          <br />
-          на одном кадре
-        </h1>
+        <span className={s.eyebrow}>Гарнитура вордмарка</span>
+        <h1 className="t-page">Pilar Regular</h1>
         <p className={s.intro}>
-          Не отдельное слово, а вся композиция hero каждой парой: вордмарк,
-          заголовок в четыре строки, подзаголовок, пункты навигации — в финальных
-          кеглях, на настоящем фоне. Вордмарк обрезан краями кадра так же, как в
-          бою. Состав глифов у всех шести проверен по таблице cmap в самом
-          бинарнике (<b>scripts/audit-fonts.py</b>), а не по описанию на сайте:
-          полный русский алфавит, включая Ё.
+          CSTM&nbsp;Fonts / type.today, версия 1.3. Подключён локальным файлом,
+          сабсет — кириллица, цифры и базовая пунктуация: 341&nbsp;КБ исходника
+          ужаты до 45. Состав глифов проверен по таблице cmap в самом бинарнике:
+          полный русский алфавит, включая Ё, Ъ, Ь, Щ и Ж, — не потеряно ничего.
+          Начертание в файле одно, поэтому вес везде 400, а массу набираем
+          кеглем и трекингом. Средний апрош слова ВАЛЬМОНТ — 0.839&nbsp;em
+          против 0.728 у Onest: на 15&nbsp;% шире, вся типографика пересчитана.
         </p>
         <AppLink className={s.back} href="/">
           ← К обложке
         </AppLink>
       </header>
 
+      {/* --- стилистические наборы --- */}
       <section className={s.cands}>
-        <h2 className="t-block">Кандидаты на вордмарк</h2>
+        <h2 className="t-block">Стилистические наборы</h2>
         <p className={s.intro}>
-          Unbounded снят. Пока акцидентная роль возвращена Onest — это рабочее
-          состояние, не решение. Ниже три платных кандидата: цены и ссылки
-          приведены по моим данным и <b>не проверены запросом</b> — сеть
-          песочницы наружу закрыта. Состав глифов у всех трёх <b>не проверен
-          бинарно</b>: файлов нет. Образец слова набран подставной гарнитурой
-          близких пропорций — он показывает поведение столбца и кегль, но не
-          рисунок конкретных знаков.
+          В файле их три — ss01, ss02, ss03. Слово набрано вертикально в финальном
+          кегле и обрезано краями кадра так же, как в бою.
         </p>
 
         <div className={s.candGrid}>
-          {CANDIDATES.map((c) => (
-            <article className={s.cand} key={c.id}>
+          {STYLE_SETS.map((set) => (
+            <article key={set.id}>
               <div className={s.candStage}>
-                <img src={heroUrl} alt="" className={s.candPlate} loading="lazy" decoding="async" />
+                <img src={plate} alt="" className={s.candPlate} loading="lazy" decoding="async" />
                 <span
                   className={s.candWord}
-                  style={{
-                    fontFamily: `var(${c.fallbackVar})`,
-                    fontWeight: c.fallbackWeight,
-                    fontSize: `calc(9.4cqw * ${c.wordmarkScale})`,
-                  }}
+                  style={
+                    set.tag === '—'
+                      ? undefined
+                      : { fontFeatureSettings: `"${set.tag}" 1` }
+                  }
                 >
                   ВАЛЬМОНТ
                 </span>
-                <span className={s.candProxy}>ОБРАЗЕЦ ПОДСТАВНОЙ</span>
               </div>
-
-              <h3 className={s.candName}>{c.name}</h3>
+              <h3 className={s.candName}>{set.title}</h3>
               <dl className={s.candFacts}>
-                <div>Производитель: <b>{c.foundry}</b></div>
-                <div>Цена: <b>{c.price}</b></div>
-                <div>
-                  Ссылка:{' '}
-                  <a href={c.url} target="_blank" rel="noreferrer noopener">
-                    {c.url.replace('https://', '')}
-                  </a>
-                </div>
-                <div>Кириллица по cmap: <b>{c.cmapChecked ? 'проверена' : 'не проверена — файла нет'}</b></div>
+                <div>Фича: <b>{set.tag}</b></div>
+                <div>{set.note}</div>
               </dl>
-              <p className={s.note}>{c.note}</p>
             </article>
           ))}
         </div>
       </section>
 
-      <div className={s.grid}>
-        {PAIRS.map((pair) => (
-          <section className={s.card} key={pair.id}>
-            <div className={s.meta}>
-              <h2 className={s.name} style={{ fontFamily: `var(${pair.displayVar})` }}>
-                {pair.title}
-              </h2>
-              <span className={s.role}>{pair.role}</span>
-            </div>
+      {/* --- заголовок hero: Pilar против Onest --- */}
+      <section className={s.cands}>
+        <h2 className="t-block">Заголовок hero — два варианта</h2>
+        <p className={s.intro}>
+          Одна и та же композиция, один и тот же кегль. Слева Pilar (рабочий
+          вариант), справа Onest. Вордмарк на обоих кадрах — Pilar: он решён.
+        </p>
 
-            <HeroSpecimen pair={pair} />
-
-            <div className={s.below}>
-              <p className={s.note}>{pair.note}</p>
-              <dl className={s.facts}>
-                <div>
-                  Кегль вордмарка: <b>×{pair.wordmarkScale.toFixed(2)}</b> от рабочего
-                </div>
-                <div>
-                  Проблемные знаки:{' '}
-                  <b style={{ fontFamily: `var(${pair.displayVar})`, fontWeight: pair.displayWeight }}>
-                    ЖФЩЪЫЬЙЦШЭЮЯ
-                  </b>
-                </div>
-                <div>
-                  Текстовый в 11px:{' '}
-                  <b className={s.tiny} style={{ fontFamily: `var(${pair.textVar})` }}>
-                    ПРОГРАММА · ГОСТИ · МЕСТО · ЗАПИСЬ
-                  </b>
-                </div>
-              </dl>
-            </div>
-          </section>
-        ))}
-      </div>
+        <div className={s.abGrid}>
+          {[
+            { id: 'pilar', label: 'Pilar Regular', f: 'var(--font-display-src)' },
+            { id: 'onest', label: 'Onest', f: 'var(--font-text-src)' },
+          ].map((v) => (
+            <article key={v.id}>
+              <div className={s.abStage}>
+                <img src={plate} alt="" className={s.candPlate} loading="lazy" decoding="async" />
+                <span className={s.abScrim} />
+                <h3 className={s.abHead} style={{ fontFamily: v.f }}>
+                  {HEADLINE.map((l) => (
+                    <span key={l}>{l}</span>
+                  ))}
+                </h3>
+                <span className={s.abWord}>ВАЛЬМОНТ</span>
+              </div>
+              <h3 className={s.candName}>{v.label}</h3>
+            </article>
+          ))}
+        </div>
+      </section>
     </div>
   )
 }

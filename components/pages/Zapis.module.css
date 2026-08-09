@@ -153,8 +153,8 @@
   display: flex;
   font-family: var(--font-display);
   gap: 0.06em;
-  font-size: clamp(2.2rem, 6vw, 4.2rem);
-  font-weight: 700;
+  font-size: clamp(2rem, 5.4vw, 3.8rem);
+  font-weight: 400;
   letter-spacing: 0.02em;
   font-variant-numeric: tabular-nums;
   line-height: 1;

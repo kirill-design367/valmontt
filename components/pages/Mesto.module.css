@@ -47,8 +47,8 @@
 
 .capName {
   font-family: var(--font-display);
-  font-size: clamp(1.35rem, 2.6vw, 2.5rem);
-  font-weight: 700;
+  font-size: clamp(1.25rem, 2.35vw, 2.25rem);
+  font-weight: 400;
   letter-spacing: 0.04em;
   text-transform: uppercase;
   flex: none;
