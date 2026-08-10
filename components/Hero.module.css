@@ -1,7 +1,10 @@
+/* Свечение считает ::after, а значение GSAP пишет в саму пилюлю — значит
+   переменная обязана наследоваться. С inherits: false псевдоэлемент её
+   не видел, и свечение не загоралось вовсе. */
 @property --pill-glow {
   syntax: '<number>';
   initial-value: 0;
-  inherits: false;
+  inherits: true;
 }
 
 .hero {
@@ -261,7 +264,8 @@
 .headline {
   position: absolute;
   left: var(--gutter);
-  top: 40%;
+  /* было 40 % — клиент попросил опустить блок целиком на 6 % высоты */
+  top: 46%;
   width: min(46vw, 62rem);
 }
 
@@ -332,10 +336,11 @@
 .pill::after {
   content: '';
   position: absolute;
-  inset: -14px;
+  inset: -10px;
   border-radius: 999px;
   opacity: var(--pill-glow);
-  background: radial-gradient(closest-side, rgba(255, 255, 255, 0.45), rgba(255, 255, 255, 0));
+  /* мягкое свечение по краю — градиент, а не фильтр */
+  background: radial-gradient(closest-side, rgba(255, 255, 255, 0.28), rgba(255, 255, 255, 0));
   pointer-events: none;
   z-index: -1;
 }
@@ -357,11 +362,14 @@
   pointer-events: none;
 }
 
+/* Перспектива живёт на родителе — панель разворачивается в настоящем 3D,
+   а не в плоской имитации. 1400px даёт заметный объём без рыбьего глаза. */
 .lensPos {
   position: absolute;
   left: var(--eye-x, 58.7%);
   top: var(--eye-y, 24%);
   transform: translate(-50%, -30%);
+  perspective: 1400px;
 }
 
 /* ------------------------------------------------------------------ *
@@ -409,7 +417,7 @@
   }
 
   .headline {
-    top: 11%;
+    top: 17%;
     left: var(--gutter);
     width: min(74vw, 20rem);
   }
@@ -444,6 +452,6 @@
 /* Очень низкие/широкие экраны: не даём заголовку налезть на линзу */
 @media (min-width: 768px) and (max-height: 620px) {
   .headline {
-    top: 34%;
+    top: 40%;
   }
 }

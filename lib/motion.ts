@@ -189,23 +189,43 @@ export function useHeroMotion(root: React.RefObject<HTMLElement | null>) {
   }, [root])
 }
 
-/** Мягкое увеличение и свечение пилюли под курсором. */
+/**
+ * Наведение на пилюлю: заливка темнеет до очень светлого серого, иконка
+ * уходит вправо на 4 px, сама пилюля приподнимается на 2 px и по краю
+ * загорается слабое свечение. Свечение — радиальный градиент под пилюлей,
+ * не фильтр: в кадре по-прежнему только transform, opacity и цвет.
+ * Вход 0.25 с, возврат 0.2 с.
+ */
 export function usePillHover(ref: React.RefObject<HTMLElement | null>) {
   useEffect(() => {
     const el = ref.current
     if (!el) return
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
 
-    const scale = gsap.quickTo(el, 'scale', { duration: 0.5, ease: 'power3.out' })
-    const glow = gsap.quickTo(el, '--pill-glow', { duration: 0.5, ease: 'power3.out' })
+    const icon = el.querySelector('[data-pill-icon]')
 
     const enter = () => {
-      scale(1.045)
-      glow(1)
+      // overwrite обязателен: вход hero тоже пишет y в эту же пилюлю
+      gsap.to(el, {
+        y: -2,
+        backgroundColor: '#ededf2',
+        '--pill-glow': 1,
+        duration: 0.25,
+        ease: 'power2.out',
+        overwrite: 'auto',
+      })
+      if (icon) gsap.to(icon, { x: 4, duration: 0.25, ease: 'power2.out', overwrite: 'auto' })
     }
     const leave = () => {
-      scale(1)
-      glow(0)
+      gsap.to(el, {
+        y: 0,
+        backgroundColor: '#ffffff',
+        '--pill-glow': 0,
+        duration: 0.2,
+        ease: 'power2.out',
+        overwrite: 'auto',
+      })
+      if (icon) gsap.to(icon, { x: 0, duration: 0.2, ease: 'power2.out', overwrite: 'auto' })
     }
 
     el.addEventListener('pointerenter', enter)

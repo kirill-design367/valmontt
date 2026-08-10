@@ -100,7 +100,7 @@ export default function Hero() {
 
             <AppLink className={s.pill} href="/zapis" ref={pill} data-late>
               Забронировать
-              <svg className={s.pillIcon} viewBox="0 0 15 15" fill="none" aria-hidden="true">
+              <svg className={s.pillIcon} data-pill-icon viewBox="0 0 15 15" fill="none" aria-hidden="true">
                 <path
                   d="M4.4 10.6 10.6 4.4M5.6 4.4h5v5"
                   stroke="currentColor"

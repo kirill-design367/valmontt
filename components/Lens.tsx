@@ -1,126 +1,210 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import gsap from 'gsap'
 import { ASSETS, formats } from '@/lib/assets'
 import s from './Lens.module.css'
 
 /** Размытые копии подложки — стекло показывает сквозь себя именно их. */
-const glassDesk = formats(ASSETS.heroDesktopGlass)
-const glassMob = formats(ASSETS.heroMobileGlass)
-const set = (f: ReturnType<typeof formats>) =>
-  `image-set(url(${f.avif}) type("image/avif"), url(${f.webp}) type("image/webp"), url(${f.jpg}) type("image/jpeg"))`
+const набор = (a: Parameters<typeof formats>[0]) => {
+  const f = formats(a)
+  return `image-set(url(${f.avif}) type("image/avif"), url(${f.webp}) type("image/webp"), url(${f.jpg}) type("image/jpeg"))`
+}
+const СТЕКЛО = {
+  '--glass-desk': набор(ASSETS.heroDesktopGlass),
+  '--glass-mob': набор(ASSETS.heroMobileGlass),
+  '--glass-desk-back': набор(ASSETS.heroDesktopGlassMirror),
+  '--glass-mob-back': набор(ASSETS.heroMobileGlassMirror),
+} as React.CSSProperties
 
-const REST = ['ГРИФОН', 'ПРОСНЁТСЯ', 'В ПОЛНОЧЬ']
-const FACTS = [
-  { t: '14 ФЕВРАЛЯ' },
-  { t: 'ВЕРХНИЙ ЗАЛ, ВАЛЬМОНТ' },
-  { t: 'ЧЁРНЫЙ ГАЛСТУК' },
-  { t: 'ОСТАЛОСЬ 12 МЕСТ', crimson: true },
-]
+/** Лицо: где и когда. Оборот: где именно и как туда попасть. */
+const ЛИЦО = {
+  покой: ['ГРИФОН', 'ПРОСНЁТСЯ', 'В ПОЛНОЧЬ'],
+  данные: [
+    { t: '14 ФЕВРАЛЯ' },
+    { t: 'ВЕРХНИЙ ЗАЛ, ВАЛЬМОНТ' },
+    { t: 'ЧЁРНЫЙ ГАЛСТУК' },
+    { t: 'ОСТАЛОСЬ 12 МЕСТ', crimson: true },
+  ],
+}
+const ОБОРОТ = {
+  покой: [
+    { t: 'ВАЛЬМОНТ' },
+    { t: '47°18′ С.Ш.' },
+    { t: '7°02′ В.Д.' },
+    { t: '1 847 М НАД УРОВНЕМ МОРЯ', crimson: true },
+  ],
+  данные: [
+    { t: 'ДОРОГА ЗАКРЫВАЕТСЯ В 20:00' },
+    { t: 'ПОСЛЕДНИЙ ПОДЪЁМНИК В 19:30' },
+    { t: 'ТРАНСФЕР ПО ЗАПРОСУ' },
+  ],
+}
+
+const УДЕРЖАНИЕ = 400 // мс до разворота на телефоне
 
 /**
  * Оптический прибор на глазу грифона.
  *
- * Чистое стекло, положенное на кадр: сквозь рамку отчётливо читается тот же
- * глаз, что за ней, только чуть смягчённый. Размягчение НЕ считается в
- * браузере — оно испечено в отдельный файл (scripts/make-glass.py) и
- * подставлено картинкой, выровненной ровно по тому месту кадра, которое рамка
- * закрывает. Живого `backdrop-filter` здесь нет: замер показал на нём
- * −10 кадров, потому что под линзой всё время едет параллакс.
+ * Две стороны на одной панели. Наведение уплотняет стекло и меняет подписи —
+ * работает и на лице, и на обороте. Клик разворачивает панель вокруг
+ * вертикальной оси на 180°: настоящий 3D, perspective на родителе, rotateY на
+ * панели, изнанки скрыты. На середине разворота панель стоит ребром и
+ * пропадает из кадра — так и задумано.
  *
- * Белого в стекле 3 %, холодная плёнка на грани заметности, блик — волосяная
- * линия в левом верхнем углу. Рамка неподвижна: ни масштаба по наведению, ни
- * цикла дыхания. Движение — только прозрачность и подписи.
+ * Стекло — испечённые копии подложки, выровненные по тому месту кадра,
+ * которое рамка закрывает; для оборота копия отражена, а отсчёт идёт от
+ * правого края — после разворота она снова садится ровно на своё место.
+ * Ни одного фильтра в рантайме: движение только transform и opacity.
  */
 export default function Lens() {
   const root = useRef<HTMLDivElement>(null)
-  const [open, setOpen] = useState(false)
-  const tl = useRef<gsap.core.Timeline | null>(null)
+  const [оборот, setОборот] = useState(false)
+  const [наведено, setНаведено] = useState(false)
 
+  const тлЛицо = useRef<gsap.core.Timeline | null>(null)
+  const тлОборот = useRef<gsap.core.Timeline | null>(null)
+  const разворот = useRef<gsap.core.Tween | null>(null)
+
+  /* --------------------------------------------------- таймлайны наведения */
   useEffect(() => {
     const el = root.current
     if (!el) return
 
-    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    const q = gsap.utils.selector(el)
+    const мало = window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
-    const t = gsap.timeline({ paused: true })
-    if (reduce) {
-      // без движения: состояние переключается мгновенно
-      t.set(q('[data-frost-edge]'), { autoAlpha: 1 }, 0)
-        .set(q('[data-frost-blur]'), { autoAlpha: 1 }, 0)
-        .set(q('[data-rest]'), { autoAlpha: 0 }, 0)
-        .set(q('[data-rest-ghost]'), { autoAlpha: 0 }, 0)
-        .set(q('[data-fact]'), { autoAlpha: 1, yPercent: 0 }, 0)
-    } else {
+    const собрать = (сторона: string) => {
+      const q = gsap.utils.selector(el)
+      const п = (sel: string) => q(`[data-side="${сторона}"] ${sel}`)
+
+      const t = gsap.timeline({ paused: true })
+      if (мало) {
+        t.set(п('[data-frost-edge]'), { autoAlpha: 1 }, 0)
+          .set(п('[data-frost-blur]'), { autoAlpha: 1 }, 0)
+          .set(п('[data-rest]'), { autoAlpha: 0 }, 0)
+          .set(п('[data-rest-ghost]'), { autoAlpha: 0 }, 0)
+          .set(п('[data-fact]'), { autoAlpha: 1, yPercent: 0 }, 0)
+        return t
+      }
+
       t
         // стекло ложится на кадр: кромка первой, следом подложка
-        .to(q('[data-frost-edge]'), { autoAlpha: 1, duration: 0.16, ease: 'power2.out' }, 0)
-        .to(q('[data-frost-blur]'), { autoAlpha: 1, duration: 0.2, ease: 'power2.out' }, 0.03)
+        .to(п('[data-frost-edge]'), { autoAlpha: 1, duration: 0.16, ease: 'power2.out' }, 0)
+        .to(п('[data-frost-blur]'), { autoAlpha: 1, duration: 0.2, ease: 'power2.out' }, 0.03)
         // исходные строки уходят вверх, размытый дубль подхватывает их в пути
-        .to(q('[data-rest]'), { yPercent: -115, autoAlpha: 0, duration: 0.18, ease: 'power3.in' }, 0)
+        .to(п('[data-rest]'), { yPercent: -115, autoAlpha: 0, duration: 0.18, ease: 'power3.in' }, 0)
         .fromTo(
-          q('[data-rest-ghost]'),
+          п('[data-rest-ghost]'),
           { yPercent: 0, autoAlpha: 0 },
           { yPercent: -115, autoAlpha: 0.6, duration: 0.18, ease: 'power3.in' },
           0,
         )
-        .set(q('[data-rest-ghost]'), { autoAlpha: 0 })
-        // на их месте проступают данные вечера
+        .set(п('[data-rest-ghost]'), { autoAlpha: 0 })
+        // на их месте проступают данные
         .fromTo(
-          q('[data-fact]'),
+          п('[data-fact]'),
           { yPercent: 118, autoAlpha: 0 },
           { yPercent: 0, autoAlpha: 1, duration: 0.25, stagger: 0.04, ease: 'power3.out' },
           0.12,
         )
+      return t
     }
-    tl.current = t
+
+    тлЛицо.current = собрать('face')
+    тлОборот.current = собрать('back')
 
     return () => {
-      t.kill()
-      tl.current = null
+      тлЛицо.current?.kill()
+      тлОборот.current?.kill()
+      тлЛицо.current = null
+      тлОборот.current = null
     }
   }, [])
 
+  /* Наведение всегда играет на ВИДИМОЙ стороне. */
   useEffect(() => {
-    const t = tl.current
+    const t = оборот ? тлОборот.current : тлЛицо.current
     if (!t) return
     // обратный ход быстрее прямого: стекло уходит за 0.15 против 0.2
-    if (open) t.timeScale(1).play()
+    if (наведено) t.timeScale(1).play()
     else t.timeScale(1.33).reverse()
-  }, [open])
+  }, [наведено, оборот])
 
-  return (
-    <div
-      className={s.lens}
-      ref={root}
-      data-lens
-      data-late
-      role="button"
-      tabIndex={0}
-      aria-label={open ? 'Скрыть данные вечера' : 'Показать данные вечера'}
-      aria-expanded={open}
-      onPointerEnter={(e) => e.pointerType === 'mouse' && setOpen(true)}
-      onPointerLeave={(e) => e.pointerType === 'mouse' && setOpen(false)}
-      onClick={() => setOpen((v) => !v)}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault()
-          setOpen((v) => !v)
-        }
-      }}
-    >
-      {/* стекло: оба слоя существуют всегда, но в покое сняты из композиции */}
+  /* ------------------------------------------------------------- разворот */
+  useEffect(() => {
+    const el = root.current
+    if (!el) return
+
+    const мало = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    разворот.current?.kill()
+
+    if (мало) {
+      gsap.set(el, { rotationY: оборот ? 180 : 0 })
+      return
+    }
+
+    разворот.current = gsap.to(el, {
+      rotationY: оборот ? 180 : 0,
+      duration: 0.9,
+      ease: 'power3.inOut',
+      onComplete: () => {
+        // скрытую сторону возвращаем в покой, чтобы следующий показ был чистым
+        const скрытая = оборот ? тлЛицо.current : тлОборот.current
+        скрытая?.pause(0)
+      },
+    })
+  }, [оборот])
+
+  /* ------------------------------------------------- касания: тап и удержание */
+  const таймер = useRef<number | null>(null)
+  const держали = useRef(false)
+  const старт = useRef({ x: 0, y: 0 })
+
+  const сброс = useCallback(() => {
+    if (таймер.current !== null) {
+      window.clearTimeout(таймер.current)
+      таймер.current = null
+    }
+  }, [])
+
+  const onPointerDown = (e: React.PointerEvent) => {
+    if (e.pointerType === 'mouse') return
+    держали.current = false
+    старт.current = { x: e.clientX, y: e.clientY }
+    таймер.current = window.setTimeout(() => {
+      держали.current = true
+      таймер.current = null
+      setОборот((v) => !v)
+    }, УДЕРЖАНИЕ)
+  }
+
+  const onPointerMove = (e: React.PointerEvent) => {
+    if (e.pointerType === 'mouse' || таймер.current === null) return
+    // палец поехал — это скролл, а не удержание
+    if (Math.hypot(e.clientX - старт.current.x, e.clientY - старт.current.y) > 10) сброс()
+  }
+
+  const onPointerUp = (e: React.PointerEvent) => {
+    if (e.pointerType === 'mouse') return
+    сброс()
+    // короткий тап переключает текст, длинный уже развернул панель
+    if (!держали.current) setНаведено((v) => !v)
+  }
+
+  useEffect(() => сброс, [сброс])
+
+  const сторона = (
+    ключ: 'face' | 'back',
+    покой: { t: string; crimson?: boolean }[] | string[],
+    данные: { t: string; crimson?: boolean }[],
+  ) => (
+    <div className={`${s.face} ${ключ === 'back' ? s.back : ''}`} data-side={ключ}>
       <span className={s.frost} data-frost-blur aria-hidden="true">
-        <span
-          className={s.glass}
-          style={{ '--glass-desk': set(glassDesk), '--glass-mob': set(glassMob) } as React.CSSProperties}
-        />
+        <span className={s.glass} />
       </span>
       <span className={s.frostEdge} data-frost-edge aria-hidden="true" />
 
-      <svg className={s.arrow} viewBox="0 0 17 17" fill="none" aria-hidden="true">
+      <svg className={`${s.arrow} ${ключ === 'back' ? s.arrowBack : ''}`} viewBox="0 0 17 17" fill="none" aria-hidden="true">
         <path
           d="M5 12 12 5M6.3 5H12v5.7"
           stroke="currentColor"
@@ -132,18 +216,24 @@ export default function Lens() {
 
       <div className={s.caption}>
         <span className={s.stack}>
-          {REST.map((line) => (
-            <span className={s.row} key={line}>
-              <span data-rest>{line}</span>
-              <span className={s.ghost} data-rest-ghost aria-hidden="true">
-                {line}
+          {покой.map((строка) => {
+            const текст = typeof строка === 'string' ? строка : строка.t
+            const малиновая = typeof строка === 'string' ? false : строка.crimson
+            return (
+              <span className={s.row} key={текст}>
+                <span data-rest className={малиновая ? s.crimson : undefined}>
+                  {текст}
+                </span>
+                <span className={s.ghost} data-rest-ghost aria-hidden="true">
+                  {текст}
+                </span>
               </span>
-            </span>
-          ))}
+            )
+          })}
         </span>
 
         <span className={s.facts}>
-          {FACTS.map((f) => (
+          {данные.map((f) => (
             <span className={s.row} key={f.t}>
               <span data-fact className={f.crimson ? s.crimson : undefined}>
                 {f.t}
@@ -152,6 +242,40 @@ export default function Lens() {
           ))}
         </span>
       </div>
+    </div>
+  )
+
+  return (
+    <div
+      className={s.panel}
+      ref={root}
+      data-lens
+      data-late
+      style={СТЕКЛО}
+      role="button"
+      tabIndex={0}
+      aria-label={оборот ? 'Показать лицевую сторону' : 'Показать координаты'}
+      aria-pressed={оборот}
+      onPointerEnter={(e) => e.pointerType === 'mouse' && setНаведено(true)}
+      onPointerLeave={(e) => e.pointerType === 'mouse' && setНаведено(false)}
+      onPointerDown={onPointerDown}
+      onPointerMove={onPointerMove}
+      onPointerUp={onPointerUp}
+      onPointerCancel={сброс}
+      onContextMenu={(e) => e.preventDefault()}
+      onClick={(e) => {
+        // клик синтезируется и после касания — там разворотом рулит удержание
+        if ((e.nativeEvent as PointerEvent).pointerType === 'mouse') setОборот((v) => !v)
+      }}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault()
+          setОборот((v) => !v)
+        }
+      }}
+    >
+      {сторона('face', ЛИЦО.покой, ЛИЦО.данные)}
+      {сторона('back', ОБОРОТ.покой, ОБОРОТ.данные)}
     </div>
   )
 }

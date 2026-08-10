@@ -35,6 +35,9 @@ export const ASSETS = {
      (scripts/make-glass.py), в браузере фильтров нет — см. CLAUDE.md. */
   heroDesktopGlass: a('/valmont-desktop-glass.jpg', ''),
   heroMobileGlass: a('/valmont-mobile-glass.jpg', ''),
+  /* Обратная сторона панели показывает всё зеркально — для неё отражённые. */
+  heroDesktopGlassMirror: a('/valmont-desktop-glass-mirror.jpg', ''),
+  heroMobileGlassMirror: a('/valmont-mobile-glass-mirror.jpg', ''),
 
   /* --- бестиарий -------------------------------------------------------- */
   beastGrifon: a('/valmont-desktop.jpg', 'Грифон: орлиная голова, перья малины и бирюзы в потемневшей бронзе'),

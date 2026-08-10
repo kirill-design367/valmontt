@@ -33,12 +33,21 @@ for name, width, radius in PLATES:
     h = round(im.height * width / im.width)
     small = im.resize((width, h), Image.LANCZOS).filter(ImageFilter.GaussianBlur(radius))
 
-    out = pub / src.name.replace('.jpg', '-glass.jpg')
-    small.save(out, 'JPEG', quality=82, optimize=True)
-    small.save(out.with_suffix('.webp'), 'WEBP', quality=78, method=6)
-    small.save(out.with_suffix('.avif'), 'AVIF', quality=60, speed=4)
+    # Обратная сторона линзы после разворота на 180° показывает всё
+    # зеркально — поэтому для неё пекём заранее отражённую копию: на экране
+    # она снова читается правильно.
+    варианты = [
+        (src.name.replace('.jpg', '-glass.jpg'), small),
+        (src.name.replace('.jpg', '-glass-mirror.jpg'),
+         small.transpose(Image.FLIP_LEFT_RIGHT)),
+    ]
+    for имя, кадр in варианты:
+        out = pub / имя
+        кадр.save(out, 'JPEG', quality=82, optimize=True)
+        кадр.save(out.with_suffix('.webp'), 'WEBP', quality=78, method=6)
+        кадр.save(out.with_suffix('.avif'), 'AVIF', quality=60, speed=4)
 
-    sizes = {p.suffix[1:]: p.stat().st_size / 1024 for p in
-             (out, out.with_suffix('.webp'), out.with_suffix('.avif'))}
-    print(f'{out.name:28} {width}×{h}  ' +
-          '  '.join(f'{k} {v:.0f} КБ' for k, v in sizes.items()))
+        sizes = {p.suffix[1:]: p.stat().st_size / 1024 for p in
+                 (out, out.with_suffix('.webp'), out.with_suffix('.avif'))}
+        print(f'{out.name:34} {width}×{h}  ' +
+              '  '.join(f'{k} {v:.0f} КБ' for k, v in sizes.items()))

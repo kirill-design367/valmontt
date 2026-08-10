@@ -63,6 +63,15 @@ for (const [tag, w, h, m] of [
       заголовокДоляШирины: +(правыйКрайЗаголовка / innerWidth).toFixed(3),
       зазорДоВордмарка: +((r.left - правыйКрайЗаголовка) / innerWidth).toFixed(3),
       кегльЗаголовка: +parseFloat(getComputedStyle(document.querySelector('[data-line]')).fontSize).toFixed(1),
+      // весь текстовый блок целиком: заголовок, лид и кнопка лежат в одной
+      // обёртке, поэтому меряем её, а не отдельные куски
+      ...(() => {
+        const b = document.querySelector('h2').parentElement.getBoundingClientRect()
+        return {
+          блокСверху: +(b.top / innerHeight).toFixed(3),
+          блокСнизу: +((innerHeight - b.bottom) / innerHeight).toFixed(3),
+        }
+      })(),
     }
   })
   console.log(tag.padEnd(5), JSON.stringify(g))
@@ -74,6 +83,9 @@ for (const [tag, w, h, m] of [
   // «левая половина» — требование десктопной композиции; на 390 px её нет
   if (!m && g.заголовокДоляШирины > 0.5) bad.push(`${tag}: заголовок вышел за левую половину (${g.заголовокДоляШирины})`)
   if (g.зазорДоВордмарка < 0.15) bad.push(`${tag}: до вордмарка ${Math.round(g.зазорДоВордмарка * 100)} % вместо 15`)
+  // блок опущен, но не должен упереться в нижний край и потерять воздух сверху
+  if (g.блокСнизу < 0.06) bad.push(`${tag}: под блоком ${Math.round(g.блокСнизу * 100)} % высоты — наезжает на нижний край`)
+  if (g.блокСверху < 0.14) bad.push(`${tag}: над блоком ${Math.round(g.блокСверху * 100)} % высоты — воздуха сверху не осталось`)
 
   await p.screenshot({ path: path.join(OUT, `v7-hero-${tag}.png`) })
   await c.close()

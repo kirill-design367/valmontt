@@ -1,22 +1,43 @@
-.lens {
+/* ------------------------------------------------------------------ *
+ * Панель — только объём. Ни рамки, ни обрезки, ни изоляции: всё это
+ * заставило бы браузер расплющить 3D (`transform-style` игнорируется при
+ * overflow, filter, opacity < 1, isolation). Кадр рисуют стороны.
+ * ------------------------------------------------------------------ */
+.panel {
   position: relative;
   width: clamp(15rem, 16.2vw, 21rem);
   height: clamp(20rem, 22vw, 28rem);
+  transform-style: preserve-3d;
+  cursor: pointer;
+  pointer-events: auto;
+  /* долгое нажатие на телефоне не должно поднимать лупу и выделение */
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+.panel:focus-visible {
+  outline: 1px solid var(--color-bone);
+  outline-offset: 4px;
+}
+
+/* Сторона: собственно рамка. Изнанка скрыта — на середине разворота панель
+   стоит ребром и пропадает, это часть эффекта. */
+.face {
+  position: absolute;
+  inset: 0;
   border: 1px solid var(--hairline);
   border-radius: 30px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   padding: 1.15rem 1.35rem 1.4rem;
-  cursor: pointer;
-  pointer-events: auto;
   overflow: hidden;
-  isolation: isolate;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 }
 
-.lens:focus-visible {
-  outline: 1px solid var(--color-bone);
-  outline-offset: 4px;
+.back {
+  transform: rotateY(180deg);
 }
 
 /* ------------------------------------------------------------------ *
@@ -38,7 +59,7 @@
 /* Размытая копия того же кадра, что лежит в подложке hero, посаженная ровно
    на своё место: рамка стоит на глазу — сквозь стекло виден размытый глаз,
    а не абстрактное пятно.
-   Отсчёт: собственное начало координат линзы = (--eye-x − 50 % ширины,
+   Отсчёт: собственное начало координат панели = (--eye-x − 50 % ширины,
    --eye-y − 30 % высоты), подложка hero растянута на вьюпорт с запасом
    24 px по кругу — отсюда эти три слагаемых. */
 .glass {
@@ -50,6 +71,15 @@
   background-image: var(--glass-desk);
   background-size: cover;
   background-position: center;
+}
+
+/* Оборот развёрнут на 180°, поэтому по горизонтали у него всё наоборот:
+   копия подложки отражена (её печёт scripts/make-glass.py), а отсчёт идёт
+   от правого края. На экране стекло снова садится ровно на своё место. */
+.back .glass {
+  background-image: var(--glass-desk-back);
+  left: auto;
+  right: calc(50% - var(--eye-x, 58.7vw) - 24px);
 }
 
 /* Холодная плёнка поверх стекла. Белого ровно 3 % — выше стекло начинает
@@ -81,7 +111,7 @@
 
 /* Волосяная кромка того же блика. Градиент лежит в рамке толщиной в пиксель:
    маска вырезает из него внутреннюю область, остаётся только сама линия.
-   Ярче прежнего у самого угла и короче — к трети рамки уже ничего нет. */
+   Ярче всего у самого угла и короткая — к трети рамки уже ничего нет. */
 .frostEdge::before {
   content: '';
   position: absolute;
@@ -112,6 +142,11 @@
   width: 17px;
   height: 17px;
   color: var(--color-bone);
+}
+
+/* та же стрелка, развёрнутая: ↗ на лице, ↙ на обороте */
+.arrowBack {
+  transform: rotate(180deg);
 }
 
 /* ------------------------------------------------------------------ *
@@ -171,11 +206,14 @@
 }
 
 @media (max-width: 767px) {
-  .lens {
-    /* было 10.5rem: самая длинная строка данных, «ВЕРХНИЙ ЗАЛ, ВАЛЬМОНТ»,
-       упиралась в край рамки и обрезалась на полуслове */
-    width: 12.2rem;
+  .panel {
+    /* самая длинная строка оборота — «ПОСЛЕДНИЙ ПОДЪЁМНИК В 19:30»;
+       рамка расширена ровно настолько, чтобы она не резалась краем */
+    width: 13.6rem;
     height: 13.5rem;
+  }
+
+  .face {
     border-radius: 20px;
     padding: 0.8rem 0.9rem 1rem;
   }
@@ -188,6 +226,11 @@
     top: calc(100% + 1.6rem - var(--viewport-h, 100vh) - 23px);
   }
 
+  .back .glass {
+    background-image: var(--glass-mob-back);
+    left: auto;
+    right: calc(100% + 5.6rem - 100vw - 23px);
+  }
 
   .arrow {
     width: 13px;
