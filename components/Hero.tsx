@@ -98,9 +98,9 @@ export default function Hero() {
               <span>Попасть можно, если найдёте как.</span>
             </p>
 
-            <AppLink className={s.pill} href="/zapis" ref={pill} data-late>
+            <AppLink className="pill" href="/zapis" ref={pill} data-late>
               Замок
-              <svg className={s.pillIcon} data-pill-icon viewBox="0 0 15 15" fill="none" aria-hidden="true">
+              <svg className="pill-icon" data-pill-icon viewBox="0 0 15 15" fill="none" aria-hidden="true">
                 <path
                   d="M4.4 10.6 10.6 4.4M5.6 4.4h5v5"
                   stroke="currentColor"

@@ -53,8 +53,14 @@
 }
 
 .cell:focus {
-  outline: none;
   border-bottom-color: var(--color-bone);
+}
+
+/* Мышью и пальцем контур не нужен — подчёркивания хватает. С клавиатуры
+   нужен: подчёркивание с 30 % на 100 % белого слишком тихое, чтобы по нему
+   вести набор вслепую. Общий контур из globals.css остаётся в силе. */
+.cell:focus:not(:focus-visible) {
+  outline: none;
 }
 
 /* Отказ: строка держится две секунды и уходит. */
@@ -159,6 +165,14 @@
   line-height: var(--lh-tight);
   letter-spacing: var(--track-tight);
   color: var(--color-crimson);
+}
+
+/* Выход с финального экрана. Появляется отдельно от постера и позже него:
+   пока кадр собирается, кнопки быть не должно. */
+.exit {
+  margin-top: calc(var(--step) * 8);
+  visibility: hidden;
+  opacity: 0;
 }
 
 .note {

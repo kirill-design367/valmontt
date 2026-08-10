@@ -4,12 +4,38 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import gsap from 'gsap'
 import PageShell from '../PageShell'
+import AppLink from '../AppLink'
 import { useReveal } from '@/lib/reveal'
+import { usePillHover } from '@/lib/motion'
 import { assembleLettersInTime } from '@/lib/letters'
 import { КОД, useQuest } from '@/lib/quest'
 import s from './Zamok.module.css'
 
 const ПОЛЕЙ = 4
+
+/**
+ * Выход с финального экрана — та же пилюля, что на обложке, с тем же
+ * наведением. Отдельным компонентом: `usePillHover` цепляется в своём
+ * эффекте, а он должен отработать после того, как кнопка появилась в
+ * дереве, — на родителе она ещё null.
+ */
+function ExitPill({ ссылка }: { ссылка: React.RefObject<HTMLAnchorElement | null> }) {
+  usePillHover(ссылка)
+  return (
+    <AppLink className={`pill ${s.exit}`} href="/" ref={ссылка}>
+      На главную
+      <svg className="pill-icon" data-pill-icon viewBox="0 0 15 15" fill="none" aria-hidden="true">
+        <path
+          d="M4.4 10.6 10.6 4.4M5.6 4.4h5v5"
+          stroke="currentColor"
+          strokeWidth="1.3"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+    </AppLink>
+  )
+}
 
 /**
  * Замок — единственная дверь сайта.
@@ -28,6 +54,7 @@ export default function Zamok() {
   const ряд = useRef<HTMLDivElement>(null)
   const штора = useRef<HTMLDivElement>(null)
   const финал = useRef<HTMLDivElement>(null)
+  const выход = useRef<HTMLAnchorElement>(null)
 
   const { пройден, завершить } = useQuest()
   const [цифры, setЦифры] = useState<string[]>(Array(ПОЛЕЙ).fill(''))
@@ -56,8 +83,24 @@ export default function Zamok() {
         const блок = финал.current
         if (!блок) return
         gsap.set(блок, { autoAlpha: 1 })
+
+        // когда встанет на место последняя литера последней строки
+        let собрался = 0
         блок.querySelectorAll<HTMLElement>('[data-final]').forEach((el, i) => {
-          assembleLettersInTime(el, { seed: i * 977 + 41, delay: мало ? 0 : 0.15 + i * 0.18 })
+          const { tween } = assembleLettersInTime(el, {
+            seed: i * 977 + 41,
+            delay: мало ? 0 : 0.15 + i * 0.18,
+          })
+          if (tween) собрался = Math.max(собрался, tween.delay() + tween.totalDuration())
+        })
+
+        /* Выход приходит через 1.2 с ПОСЛЕ сборки, не вместе с ней: пока
+           кадр собирается, кнопка сбивала бы момент. */
+        gsap.to(выход.current, {
+          autoAlpha: 1,
+          duration: мало ? 0 : 0.5,
+          delay: мало ? 0 : собрался + 1.2,
+          ease: 'power2.out',
         })
       })
     }
@@ -109,6 +152,8 @@ export default function Zamok() {
       блок.querySelectorAll<HTMLElement>('[data-final]').forEach((el, i) => {
         assembleLettersInTime(el, { seed: i * 977 + 41, duration: 0.01, stagger: 0 })
       })
+      // сюда пришли уже открытыми — момент собирать нечего, выход сразу
+      gsap.set(выход.current, { autoAlpha: 1 })
     })
   }, [пройден, вбоди])
 
@@ -244,6 +289,7 @@ export default function Zamok() {
                 <span className={s.note} data-final>
                   Приглашение действительно на одного
                 </span>
+                <ExitPill ссылка={выход} />
               </div>
             )}
           </>,

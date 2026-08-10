@@ -40,22 +40,12 @@ for (const [tag, viewport, моб] of [
   await p.goto(o + '/mesto/', { waitUntil: 'networkidle' })
   await p.waitForTimeout(2500)
 
-  // раскрываем все четыре: кадр должен показать найденное состояние
+  /* Жмём все четыре: цифра держится две секунды и гаснет насовсем.
+     Снимаем ДО того, как она ушла, — кадр должен показать находку. */
   await p.evaluate(() => {
-    document.querySelectorAll('[data-marker]').forEach((el) => {
-      el.dispatchEvent(new PointerEvent('pointerover', { bubbles: true, pointerType: 'mouse' }))
-      el.dispatchEvent(new PointerEvent('pointerenter', { bubbles: true, pointerType: 'mouse' }))
-    })
+    document.querySelectorAll('[data-marker]').forEach((el) => el.click())
   })
   await p.waitForTimeout(700)
-  // курсор ушёл — остаётся то, что видит гость после находки
-  await p.evaluate(() => {
-    document.querySelectorAll('[data-marker]').forEach((el) => {
-      el.dispatchEvent(new PointerEvent('pointerout', { bubbles: true, pointerType: 'mouse' }))
-      el.dispatchEvent(new PointerEvent('pointerleave', { bubbles: true, pointerType: 'mouse' }))
-    })
-  })
-  await p.waitForTimeout(600)
 
   for (let i = 0; i < 4; i++) {
     const рамка = (await p.$$('section'))[i]

@@ -45,6 +45,13 @@
   border-color: var(--color-crimson);
 }
 
+/* Найденный маркер малиновый целиком: здесь уже смотрели, но что именно
+   тут было — метка больше не говорит. */
+.found .dot {
+  background: var(--color-crimson);
+  opacity: 1;
+}
+
 .dot {
   grid-area: 1 / 1;
   width: 5px;

@@ -46,24 +46,22 @@ const строка = (имя, x) => console.log(`${имя.padEnd(34)}${String(x)
   await p.goto(o + '/mesto/', { waitUntil: 'networkidle' })
   await p.waitForTimeout(2500)
 
-  // наведение туда-обратно без остановки: раскрытие 0.4 с в обе стороны
+  // Цифра открывается кликом и живёт свой номер целиком: раскрытие 0.4 с,
+  // выдержка 2 с, уход 0.45 с. Клик расходует маркер навсегда — поэтому
+  // жмём все четыре по очереди, а не один много раз.
   const fps = await p.evaluate(`(async()=>{
     const счёт = ${СЧЁТ}
-    const el = document.querySelector('[data-marker]')
-    let on = false
-    const t = setInterval(() => {
-      on = !on
-      const тип = on ? ['pointerover','pointerenter'] : ['pointerout','pointerleave']
-      тип.forEach(n => el.dispatchEvent(new PointerEvent(n, { bubbles: true, pointerType: 'mouse' })))
-    }, 420)
-    const r = await счёт(3000)
+    const все = [...document.querySelectorAll('[data-marker]')]
+    let i = 0
+    const t = setInterval(() => { все[i]?.click(); i++ }, 260)
+    const r = await счёт(3400)
     clearInterval(t)
     return r
   })()`)
-  строка('маркер: раскрытие туда-обратно', fps)
+  строка('маркеры: открытие и уход цифры', fps)
 
-  // все четыре сразу — худший случай для страницы
-  const fps4 = await p.evaluate(`(async()=>{
+  // наведение: окружность растёт и садится без остановки
+  const fpsНав = await p.evaluate(`(async()=>{
     const счёт = ${СЧЁТ}
     const все = [...document.querySelectorAll('[data-marker]')]
     let on = false
@@ -76,7 +74,7 @@ const строка = (имя, x) => console.log(`${имя.padEnd(34)}${String(x)
     clearInterval(t)
     return r
   })()`)
-  строка('маркеры: все четыре разом', fps4)
+  строка('маркеры: наведение на все четыре', fpsНав)
   await c.close()
 }
 
@@ -106,6 +104,32 @@ const строка = (имя, x) => console.log(`${имя.padEnd(34)}${String(x)
     return r
   })()`)
   строка('дрожание полей при отказе', fps)
+  await c.close()
+}
+
+/* ------------------------------------------------- индикатор проезда */
+{
+  const c = await b.newContext({ viewport: { width: 1920, height: 1080 } })
+  const p = await c.newPage()
+  await p.goto(o + '/mesto/', { waitUntil: 'networkidle' })
+  await p.waitForTimeout(2500)
+
+  const fps = await p.evaluate(`(async()=>{ const счёт = ${СЧЁТ}; return счёт(3000) })()`)
+  строка('индикатор: пробег пятна', fps)
+
+  // боевой случай: пятно бежит, а лента едет вбок под ним
+  const fpsЛента = await p.evaluate(`(async()=>{
+    const счёт = ${СЧЁТ}
+    const предел = document.documentElement.scrollHeight - innerHeight
+    const t = setInterval(() => {
+      scrollTo(0, Math.min(scrollY + 90, предел))
+      dispatchEvent(new WheelEvent('wheel', { deltaY: 90 }))
+    }, 32)
+    const r = await счёт(3000)
+    clearInterval(t)
+    return r
+  })()`)
+  строка('индикатор + проезд ленты', fpsЛента)
   await c.close()
 }
 

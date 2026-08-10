@@ -27,6 +27,15 @@ export function useReveal(
       const mm = gsap.matchMedia()
 
       mm.add(FULL, () => {
+        /* Старт не может лежать дальше дна документа: у последнего блока
+           короткой страницы «top 82 %» недостижим, и без зажима такой блок
+           не проявится вовсе. Ту же болезнь у сборки лечит lib/letters.ts. */
+        const старт = (group: HTMLElement) => () =>
+          Math.min(
+            group.getBoundingClientRect().top + window.scrollY - 0.82 * window.innerHeight,
+            Math.max(0, ScrollTrigger.maxScroll(window)),
+          )
+
         const groups = root.querySelectorAll<HTMLElement>('[data-reveal-group]')
         const targets: HTMLElement[] = groups.length
           ? Array.from(groups)
@@ -45,7 +54,7 @@ export function useReveal(
                 duration: 1.05,
                 ease: 'power4.out',
                 stagger,
-                scrollTrigger: { trigger: group, start: 'top 82%', once: true },
+                scrollTrigger: { trigger: group, start: старт(group), once: true, invalidateOnRefresh: true },
               },
             )
           }
@@ -59,7 +68,7 @@ export function useReveal(
                 duration: 0.9,
                 ease: 'power3.out',
                 stagger,
-                scrollTrigger: { trigger: group, start: 'top 82%', once: true },
+                scrollTrigger: { trigger: group, start: старт(group), once: true, invalidateOnRefresh: true },
               },
             )
           }

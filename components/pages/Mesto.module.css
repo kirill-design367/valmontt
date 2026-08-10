@@ -85,35 +85,6 @@
   max-width: 24rem;
 }
 
-/* Номер кадра вертикально вдоль края — фирменный приём на этой странице */
-.capIndex {
-  position: absolute;
-  top: calc(var(--nav-h) + var(--step) * 2);
-  left: clamp(1.5rem, 3vw, 3.5rem);
-  z-index: 2;
-  writing-mode: vertical-rl;
-  text-orientation: mixed;
-  font-size: var(--t5);
-  font-weight: 300;
-  letter-spacing: var(--track-wide);
-  color: rgba(255, 255, 255, 0.5);
-}
-
-
-/* Подсказка «крутите» — уходит, как только лента поехала */
-.hint {
-  position: fixed;
-  left: 50%;
-  bottom: calc(var(--step) * 3);
-  z-index: 20;
-  transform: translateX(-50%);
-  font-size: var(--t5);
-  font-weight: 300;
-  letter-spacing: var(--track-wide);
-  color: rgba(255, 255, 255, 0.5);
-  pointer-events: none;
-}
-
 @media (max-width: 767px) {
   /* На телефоне горизонтальный пин ломает нативный жест: отдаём кадры
      обычной вертикальной лентой, композиция та же. */
@@ -145,13 +116,5 @@
 
   .capNote {
     max-width: none;
-  }
-
-  .capIndex {
-    top: calc(var(--step) * 3);
-  }
-
-  .hint {
-    display: none;
   }
 }

@@ -101,44 +101,66 @@ for (const [tag, опции] of [['desktop', {}], ['mobile', { w: 390, h: 844, m
 
   await кадр('v11-marker-pokoy')
 
-  // наведение (на телефоне — тап)
-  await p.evaluate((m) => {
+  // наведение цифру больше не открывает — только подращивает окружность
+  await p.evaluate(() => {
     const el = document.querySelector('[data-marker]')
-    if (m) el.click()
-    else {
-      el.dispatchEvent(new PointerEvent('pointerover', { bubbles: true, pointerType: 'mouse' }))
-      el.dispatchEvent(new PointerEvent('pointerenter', { bubbles: true, pointerType: 'mouse' }))
-    }
-  }, m)
-  await p.waitForTimeout(700)
-  await кадр('v11-marker-navedenie')
-
-  // курсор ушёл — цифра остаётся, окружность малиновая
+    el.dispatchEvent(new PointerEvent('pointerover', { bubbles: true, pointerType: 'mouse' }))
+    el.dispatchEvent(new PointerEvent('pointerenter', { bubbles: true, pointerType: 'mouse' }))
+  })
+  await p.waitForTimeout(600)
+  const приНаведении = await p.evaluate(() => {
+    const ц = document.querySelector('[data-marker] [data-digit]')
+    return +getComputedStyle(ц).opacity
+  })
+  if (приНаведении > 0.05) bad.push(`${tag}: наведение открыло цифру (прозрачность ${приНаведении})`)
   await p.evaluate(() => {
     const el = document.querySelector('[data-marker]')
     el.dispatchEvent(new PointerEvent('pointerout', { bubbles: true, pointerType: 'mouse' }))
     el.dispatchEvent(new PointerEvent('pointerleave', { bubbles: true, pointerType: 'mouse' }))
   })
-  await p.waitForTimeout(700)
-  await кадр('v11-marker-naiden')
+  await p.waitForTimeout(450)
 
-  const после = await p.evaluate(() => {
+  // цифра открывается кликом (на телефоне тапом) и держится две секунды
+  await p.evaluate(() => document.querySelector('[data-marker]').click())
+  await p.waitForTimeout(700)
+  await кадр('v11-marker-otkryta')
+  const открыта = await p.evaluate(() => {
+    const ц = document.querySelector('[data-marker] [data-digit]')
+    return { видна: +getComputedStyle(ц).opacity > 0.9, текст: ц.textContent.trim() }
+  })
+  console.log(`цифра открыта ${tag}`, JSON.stringify(открыта))
+  if (!открыта.видна) bad.push(`${tag}: цифра не открылась по клику`)
+
+  // держится две секунды — на полутора она обязана быть ещё видна
+  await p.waitForTimeout(900)
+  const наПолутора = await p.evaluate(
+    () => +getComputedStyle(document.querySelector('[data-marker] [data-digit]')).opacity,
+  )
+  if (наПолутора < 0.9) bad.push(`${tag}: цифра погасла раньше двух секунд (${наПолутора} на 1.6 с)`)
+
+  // ...и гаснет насовсем
+  await p.waitForTimeout(1600)
+  await кадр('v11-marker-pogasla')
+  const погасла = await p.evaluate(() => {
     const el = document.querySelector('[data-marker]')
-    const кольцо = el.querySelector('[data-ring]')
-    const цифра = el.querySelector('[data-digit]')
-    const cs = getComputedStyle(кольцо)
+    const ц = el.querySelector('[data-digit]')
+    const к = el.querySelector('[data-ring]')
     return {
-      цифраВидна: getComputedStyle(цифра).visibility === 'visible' && +getComputedStyle(цифра).opacity > 0.9,
-      кольцоМалиновое: cs.borderColor.includes('200, 30, 90'),
-      непрозрачность: +(+cs.opacity).toFixed(2),
-      счётчик: [...document.querySelectorAll('[class*="QuestProgress_dot"]')].length,
+      цифраСкрыта: +getComputedStyle(ц).opacity < 0.05,
+      кольцоМалиновое: getComputedStyle(к).borderColor.includes('200, 30, 90'),
     }
   })
-  console.log(`после находки ${tag}`, JSON.stringify(после))
-  if (!после.цифраВидна) bad.push(`${tag}: цифра пропала после ухода курсора`)
-  if (!после.кольцоМалиновое) bad.push(`${tag}: найденный маркер не стал малиновым`)
-  if (после.непрозрачность < 0.99) bad.push(`${tag}: найденный маркер не на полной непрозрачности`)
-  if (после.счётчик !== 4) bad.push(`${tag}: счётчик прогресса не из четырёх кружков`)
+  console.log(`цифра погасла ${tag}`, JSON.stringify(погасла))
+  if (!погасла.цифраСкрыта) bad.push(`${tag}: цифра не погасла через две секунды`)
+  if (!погасла.кольцоМалиновое) bad.push(`${tag}: погасший маркер не малиновый`)
+
+  // повторный клик ничего не показывает
+  await p.evaluate(() => document.querySelector('[data-marker]').click())
+  await p.waitForTimeout(800)
+  const повторно = await p.evaluate(
+    () => +getComputedStyle(document.querySelector('[data-marker] [data-digit]')).opacity,
+  )
+  if (повторно > 0.05) bad.push(`${tag}: повторный клик снова показал цифру`)
 
   // счётчик должен проявиться
   await p.waitForTimeout(600)
@@ -235,8 +257,9 @@ for (const [tag, опции] of [['desktop', {}], ['mobile', { w: 390, h: 844, m
   await вМомент(850, 'v11-final-sborka-1')
   await вМомент(1200, 'v11-final-sborka-2')
   await вМомент(1600, 'v11-final-sborka-3')
-  await p.waitForTimeout(2200)
-  await p.screenshot({ path: path.join(OUT, 'v11-final.png') })
+  // выход приходит через 1.2 с после того, как встала последняя литера
+  await p.waitForTimeout(4200)
+  await p.screenshot({ path: path.join(OUT, 'v12-final-s-knopkoy.png') })
 
   const финал = await p.evaluate(() => {
     const текст = document.body.innerText
@@ -262,6 +285,32 @@ for (const [tag, опции] of [['desktop', {}], ['mobile', { w: 390, h: 844, m
       })(),
     }
   })
+  // выход с финального экрана: приходит позже постера, ведёт на главную
+  const кнопка = await p.evaluate(() => {
+    const a = document.querySelector('[class*="Zamok_final"] a.pill')
+    if (!a) return null
+    const cs = getComputedStyle(a)
+    return {
+      видна: cs.visibility === 'visible' && +cs.opacity > 0.9,
+      текст: a.textContent.trim(),
+      адрес: a.getAttribute('href'),
+      заливка: cs.backgroundColor,
+      цвет: cs.color,
+      нижеПодписи:
+        a.getBoundingClientRect().top >
+        [...document.querySelectorAll('[class*="Zamok_note"]')][0].getBoundingClientRect().bottom,
+    }
+  })
+  console.log('выход', JSON.stringify(кнопка))
+  if (!кнопка) bad.push('финал: кнопки выхода нет')
+  else {
+    if (!кнопка.видна) bad.push('финал: кнопка выхода не проявилась')
+    if (кнопка.текст !== 'На главную') bad.push(`финал: на кнопке «${кнопка.текст}»`)
+    if (!/\/valmontt\/$/.test(кнопка.адрес || '')) bad.push(`финал: кнопка ведёт на ${кнопка.адрес}`)
+    if (!кнопка.заливка.includes('255, 255, 255')) bad.push(`финал: заливка кнопки ${кнопка.заливка}, ждали белую`)
+    if (!кнопка.нижеПодписи) bad.push('финал: кнопка стоит не под подписью')
+  }
+
   console.log('финал', JSON.stringify(финал))
   if (!финал.естьВремя || !финал.естьФраза) bad.push('финал: не собрался')
   if (!финал.шапкаПеребита) bad.push('финал: меню осталось поверх постера')
@@ -270,6 +319,100 @@ for (const [tag, опции] of [['desktop', {}], ['mobile', { w: 390, h: 844, m
   if (!финал.счётчикСкрыт) bad.push('финал: счётчик прогресса не исчез')
 
   await c.close()
+}
+
+/* ------------------------------------------- индикатор проезда на /mesto */
+{
+  const { c, p } = await открыть('/mesto/')
+  const геометрия = await p.evaluate(() => {
+    const b = document.querySelector('[data-rail-beam]')
+    // мерим САМУ ЛИНИЮ: короб выше её на высоту ореола
+    const линия = b.querySelector('[data-rail-line]')
+    const r = линия.getBoundingClientRect()
+    const пятно = b.querySelector('[data-rail-spot]')
+    const пр = пятно.getBoundingClientRect()
+    const ореол = b.querySelector('[data-rail-halo]')
+    return {
+      виден: +getComputedStyle(b).opacity > 0.5,
+      высота: Math.round(r.height),
+      снизу: Math.round(innerHeight - r.bottom),
+      воВсюШирину: Math.round(r.width) === innerWidth,
+      доляПятна: +(пр.width / innerWidth).toFixed(3),
+      ореолВверх: Math.round(ореол.getBoundingClientRect().height),
+      надЛинией: ореол.getBoundingClientRect().bottom <= r.top + 0.5,
+      линия: getComputedStyle(линия).backgroundColor,
+    }
+  })
+  console.log('индикатор', JSON.stringify(геометрия))
+  if (!геометрия.виден) bad.push('индикатор: не виден в начале ленты')
+  if (геометрия.высота !== 3) bad.push(`индикатор: высота ${геометрия.высота} вместо 3`)
+  if (геометрия.снизу !== 48) bad.push(`индикатор: отступ снизу ${геометрия.снизу} вместо 48`)
+  if (!геометрия.воВсюШирину) bad.push('индикатор: не во всю ширину экрана')
+  if (Math.abs(геометрия.доляПятна - 0.18) > 0.005) bad.push(`индикатор: пятно ${геометрия.доляПятна} вместо 0.18`)
+  if (!геометрия.линия.includes('255, 255, 255') || !геометрия.линия.includes('0.08')) {
+    bad.push(`индикатор: линия ${геометрия.линия} вместо белой на 8 %`)
+  }
+  if (геометрия.ореолВверх !== 12) bad.push(`индикатор: ореол ${геометрия.ореолВверх} px вместо 12`)
+  if (!геометрия.надЛинией) bad.push('индикатор: ореол не над линией')
+
+  // три кадра движения пятна
+  for (let i = 1; i <= 3; i++) {
+    await p.waitForTimeout(i === 1 ? 400 : 700)
+    await p.screenshot({
+      path: path.join(OUT, `v12-beam-${i}.png`),
+      clip: { x: 0, y: 1080 - 120, width: 1920, height: 120 },
+    })
+  }
+  await p.screenshot({ path: path.join(OUT, 'v12-mesto-beam.png') })
+
+  // пятно обязано ехать: два замера подряд дают разный сдвиг
+  const едет = await p.evaluate(async () => {
+    const м = () => new DOMMatrixReadOnly(getComputedStyle(document.querySelector('[data-rail-spot]')).transform).m41
+    const a = м()
+    await new Promise((r) => setTimeout(r, 320))
+    return Math.abs(м() - a) > 10
+  })
+  if (!едет) bad.push('индикатор: пятно стоит на месте')
+
+  // доехали до конца — индикатор уходит
+  await p.evaluate(async () => {
+    const предел = document.documentElement.scrollHeight - innerHeight
+    for (let i = 0; i < 400; i++) {
+      scrollTo(0, Math.min(scrollY + 160, предел))
+      dispatchEvent(new WheelEvent('wheel', { deltaY: 160 }))
+      await new Promise((r) => setTimeout(r, 20))
+      if (scrollY >= предел - 1) break
+    }
+    await new Promise((r) => setTimeout(r, 1500))
+  })
+  const вКонце = await p.evaluate(() => {
+    const cs = getComputedStyle(document.querySelector('[data-rail-beam]'))
+    return cs.visibility === 'hidden' || +cs.opacity < 0.1
+  })
+  if (!вКонце) bad.push('индикатор: не исчез на последнем кадре')
+
+  // прокрутили назад — вернулся
+  await p.evaluate(async () => {
+    for (let i = 0; i < 400 && scrollY > 0; i++) {
+      scrollTo(0, Math.max(0, scrollY - 160))
+      dispatchEvent(new WheelEvent('wheel', { deltaY: -160 }))
+      await new Promise((r) => setTimeout(r, 20))
+    }
+    await new Promise((r) => setTimeout(r, 1200))
+  })
+  const вернулся = await p.evaluate(() => +getComputedStyle(document.querySelector('[data-rail-beam]')).opacity > 0.5)
+  if (!вернулся) bad.push('индикатор: не вернулся при прокрутке назад')
+  console.log('индикатор ход', JSON.stringify({ едет, вКонце, вернулся }))
+
+  // на телефоне индикатора нет
+  await c.close()
+  const { c: c2, p: p2 } = await открыть('/mesto/', { w: 390, h: 844, m: true })
+  const наТелефоне = await p2.evaluate(() => {
+    const b = document.querySelector('[data-rail-beam]')
+    return !b || getComputedStyle(b).display === 'none'
+  })
+  if (!наТелефоне) bad.push('индикатор: показан на телефоне, где лента вертикальная')
+  await c2.close()
 }
 
 /* ------------------------------------------- бережный режим: без движения */
@@ -283,15 +426,10 @@ for (const [tag, опции] of [['desktop', {}], ['mobile', { w: 390, h: 844, m
   await p.goto(o + '/mesto/', { waitUntil: 'networkidle' })
   await p.waitForTimeout(1500)
   const маркер = await p.evaluate(() => {
-    const el = document.querySelector('[data-marker]')
-    // React синтезирует onPointerEnter из pointerover — одного pointerenter,
-    // который не всплывает, ему мало
-    el.dispatchEvent(new PointerEvent('pointerover', { bubbles: true, pointerType: 'mouse' }))
-    el.dispatchEvent(new PointerEvent('pointerenter', { bubbles: true, pointerType: 'mouse' }))
-    // Без движения раскрытие обязано пройти за кадр-другой, а не за 0.4 с.
-    // 90 мс — это заведомо внутри анимации: при обычном режиме здесь была бы
-    // середина хода, а не готовое состояние.
-    const цифра = el.querySelector('[data-digit]')
+    // цифра теперь только по клику; без движения она обязана появиться
+    // за кадр-другой, а не за 0.4 с
+    document.querySelector('[data-marker]').click()
+    const цифра = document.querySelector('[data-marker] [data-digit]')
     return new Promise((готово) =>
       setTimeout(
         () =>

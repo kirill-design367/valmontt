@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import PageShell from '../PageShell'
@@ -10,6 +10,7 @@ import { ASSETS, пропорция, type Asset } from '@/lib/assets'
 import { ЦИФРЫ } from '@/lib/quest'
 import Marker from '../Marker'
 import Plate from '../Plate'
+import RailBeam from '../RailBeam'
 import s from './Mesto.module.css'
 
 gsap.registerPlugin(ScrollTrigger)
@@ -47,7 +48,8 @@ const FRAMES: { name: string; note: string; wide: Asset; tall: Asset }[] = [
 export default function Mesto() {
   const pin = useRef<HTMLDivElement>(null)
   const rail = useRef<HTMLDivElement>(null)
-  const hint = useRef<HTMLSpanElement>(null)
+  /* Индикатор проезда виден, пока лента не доехала до последнего кадра */
+  const [ведётЛента, setВедётЛента] = useState(true)
 
   useEffect(() => {
     const box = pin.current
@@ -79,16 +81,15 @@ export default function Mesto() {
               scrub: 0.6,
               invalidateOnRefresh: true,
               anticipatePin: 1,
+              /* Индикатор гаснет, когда лента доехала: 0.97 — это последний
+                 кадр уже на месте. Гистерезис в 0.04 не даёт ему мигать на
+                 границе, когда scrub качает прогресс туда-сюда. */
+              onUpdate: (self) => {
+                if (self.progress >= 0.97) setВедётЛента(false)
+                else if (self.progress < 0.93) setВедётЛента(true)
+              },
             },
           })
-
-          if (hint.current) {
-            gsap.to(hint.current, {
-              opacity: 0,
-              ease: 'none',
-              scrollTrigger: { trigger: box, start: 'top top', end: '+=220', scrub: true },
-            })
-          }
 
           /* Имена кадров собираются не по вертикальному скроллу, а по
              положению самого кадра в ленте: старт и финиш считаются от
@@ -110,7 +111,7 @@ export default function Mesto() {
         mm.add(`${FULL} and (max-width: 767px)`, () => {
           const откаты = gsap.utils
             .toArray<HTMLElement>('[data-letters]')
-            .map((el, i) => assembleLetters(el, { seed: i * 977 + 13 }))
+            .map((el, i) => assembleLetters(el, { seed: i * 977 + 13, индекс: i }))
           return () => откаты.forEach((f) => f())
         })
       }, box)
@@ -156,9 +157,6 @@ export default function Mesto() {
                 />
               </div>
 
-              <span className={s.capIndex}>
-                КАДР {['ПЕРВЫЙ', 'ВТОРОЙ', 'ТРЕТИЙ', 'ЧЕТВЁРТЫЙ'][i]}
-              </span>
               <div className={s.cap}>
                 <span className={s.capName} data-letters>
                   {frame.name}
@@ -170,9 +168,8 @@ export default function Mesto() {
         </div>
       </div>
 
-      <span className={s.hint} ref={hint} aria-hidden="true">
-        КРУТИТЕ — ЛЕНТА ЕДЕТ ВБОК
-      </span>
+      {/* вместо надписи про прокрутку — световая полоса внизу экрана */}
+      <RailBeam виден={ведётЛента} />
     </PageShell>
   )
 }
