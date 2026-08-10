@@ -48,18 +48,43 @@
 }
 
 .crumbs a {
+  position: relative;
+  display: block;
   font-size: 11px;
   font-weight: 300;
   letter-spacing: 0.28em;
   color: var(--color-bone);
   text-decoration: none;
   opacity: 0.45;
-  transition: opacity 0.4s var(--ease-out-quint);
+  transition: opacity 0.3s cubic-bezier(0.215, 0.61, 0.355, 1);
+}
+
+/* то же подчёркивание, что в верхнем меню обложки: слева направо на входе,
+   вправо же на уходе, 0.3 с */
+.crumbs a::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0.28em;
+  bottom: -0.55em;
+  height: 1px;
+  background: var(--color-bone);
+  transform: scaleX(0);
+  transform-origin: 100% 50%;
+  transition: transform 0.3s cubic-bezier(0.215, 0.61, 0.355, 1);
 }
 
 .crumbs a:hover,
+.crumbs a:focus-visible,
 .crumbs a[aria-current='page'] {
   opacity: 1;
+}
+
+.crumbs a:hover::after,
+.crumbs a:focus-visible::after,
+.crumbs a[aria-current='page']::after {
+  transform: scaleX(1);
+  transform-origin: 0 50%;
 }
 
 /* Титул страницы вертикально вдоль правого края — фирменный приём */

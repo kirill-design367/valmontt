@@ -26,10 +26,27 @@
   overflow: hidden;
 }
 
+/* Одна сетка на весь билет: две колонки равной ширины, равные промежутки
+   по вертикали. Все три линии полей получаются одной длины и одной толщины,
+   подписи над ними стоят на общих базовых линиях, кнопка садится на ту же
+   левую вертикаль, что и линии. */
 .form {
-  display: flex;
-  flex-direction: column;
-  gap: 1.75rem;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: clamp(1.5rem, 4vw, 3rem);
+  row-gap: 2rem;
+}
+
+.form > :nth-child(1) {
+  grid-area: 1 / 1;
+}
+
+.form > :nth-child(2) {
+  grid-area: 1 / 2;
+}
+
+.form > :nth-child(3) {
+  grid-area: 2 / 1;
 }
 
 .field {
@@ -64,6 +81,18 @@
   color: rgba(255, 255, 255, 0.22);
 }
 
+/* Служебные стрелки числового поля торчали над линией и ломали ряд */
+.input[type='number'] {
+  appearance: none;
+  -moz-appearance: textfield;
+}
+
+.input::-webkit-outer-spin-button,
+.input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
 .input:focus {
   outline: none;
   border-bottom-color: var(--color-bone);
@@ -78,23 +107,9 @@
   color: var(--color-crimson);
 }
 
-.row {
-  display: flex;
-  gap: clamp(1.5rem, 4vw, 3rem);
-}
-
-.row .field:first-child {
-  flex: 1;
-}
-
-.row .field:last-child {
-  width: 8rem;
-  flex: none;
-}
-
 .submit {
-  align-self: flex-start;
-  margin-top: 0.75rem;
+  grid-area: 3 / 1;
+  justify-self: start;
   display: inline-flex;
   align-items: center;
   gap: 0.55rem;
@@ -117,13 +132,6 @@
 .submit svg {
   width: 15px;
   height: 15px;
-}
-
-.hint {
-  font-size: 11px;
-  font-weight: 300;
-  line-height: 1.6;
-  color: rgba(255, 255, 255, 0.4);
 }
 
 /* ------------------------------------------------------------------ *
@@ -186,13 +194,21 @@
 }
 
 @media (max-width: 767px) {
-  .row {
-    flex-direction: column;
-    gap: 1.75rem;
+  /* та же сетка, но в одну колонку: линии по-прежнему одной длины */
+  .form {
+    grid-template-columns: minmax(0, 1fr);
   }
 
-  .row .field:last-child {
-    width: 6.5rem;
+  .form > :nth-child(2) {
+    grid-area: 2 / 1;
+  }
+
+  .form > :nth-child(3) {
+    grid-area: 3 / 1;
+  }
+
+  .submit {
+    grid-area: 4 / 1;
   }
 
   .ticket {

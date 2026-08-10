@@ -2,7 +2,14 @@
 
 import { useEffect, useRef, useState } from 'react'
 import gsap from 'gsap'
+import { ASSETS, formats } from '@/lib/assets'
 import s from './Lens.module.css'
+
+/** Размытые копии подложки — стекло показывает сквозь себя именно их. */
+const glassDesk = formats(ASSETS.heroDesktopGlass)
+const glassMob = formats(ASSETS.heroMobileGlass)
+const set = (f: ReturnType<typeof formats>) =>
+  `image-set(url(${f.avif}) type("image/avif"), url(${f.webp}) type("image/webp"), url(${f.jpg}) type("image/jpeg"))`
 
 const REST = ['ГРИФОН', 'ПРОСНЁТСЯ', 'В ПОЛНОЧЬ']
 const FACTS = [
@@ -15,10 +22,16 @@ const FACTS = [
 /**
  * Оптический прибор на глазу грифона.
  *
- * Иней — два заранее готовых слоя с ФИКСИРОВАННЫМИ фильтрами: размытие
- * подложки и белёсая опушка по краям. Наведение гасит их перекрёстно
- * прозрачностью, радиус blur не анимируется ни в одном кадре. В покое оба
- * слоя сняты через `visibility: hidden` — композитор их не трогает вообще.
+ * Стекло, а не молочная плёнка: сквозь рамку видно ту же подложку, что за ней,
+ * только размытую. Размытие НЕ считается в браузере — оно испечено в отдельный
+ * файл (scripts/make-glass.py) и подставлено картинкой, выровненной ровно по
+ * тому месту кадра, которое рамка закрывает. Живого `backdrop-filter` здесь
+ * больше нет: замер показал на нём −10 кадров, потому что под линзой всё время
+ * едет параллакс и подложка пересчитывалась в каждом кадре.
+ *
+ * Белого в стекле 6 %, остальное — холодная плёнка и блик по кромке.
+ * Наведение по-прежнему гасит слои перекрёстно прозрачностью; таймлайн,
+ * длительности и кривые не изменились ни в одном кадре.
  */
 export default function Lens() {
   const root = useRef<HTMLDivElement>(null)
@@ -101,8 +114,13 @@ export default function Lens() {
         }
       }}
     >
-      {/* иней: оба слоя существуют всегда, но в покое сняты из композиции */}
-      <span className={s.frostBlur} data-frost-blur aria-hidden="true" />
+      {/* стекло: оба слоя существуют всегда, но в покое сняты из композиции */}
+      <span className={s.frost} data-frost-blur aria-hidden="true">
+        <span
+          className={s.glass}
+          style={{ '--glass-desk': set(glassDesk), '--glass-mob': set(glassMob) } as React.CSSProperties}
+        />
+      </span>
       <span className={s.frostEdge} data-frost-edge aria-hidden="true" />
 
       <svg className={s.arrow} viewBox="0 0 17 17" fill="none" aria-hidden="true">

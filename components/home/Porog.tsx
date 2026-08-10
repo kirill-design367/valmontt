@@ -56,11 +56,12 @@ export default function Porog() {
             { autoAlpha: 0.35, duration: 1.5, ease: 'power2.out' },
             0.1,
           )
-          // блум разгорается последним
+          // блум разгорается последним; убавлен на треть (0.5 → 0.33),
+          // как и ореол вордмарка на hero
           .fromTo(
             '[data-porog-bloom]',
             { autoAlpha: 0 },
-            { autoAlpha: 0.5, duration: 1, ease: 'power2.out' },
+            { autoAlpha: 0.33, duration: 1, ease: 'power2.out' },
             0.95,
           )
           .fromTo(
@@ -79,7 +80,7 @@ export default function Porog() {
       mm.add(REDUCE, () => {
         gsap.set('[data-letter]', { yPercent: 0, autoAlpha: 1 })
         gsap.set('[data-eye]', { autoAlpha: 0.35 })
-        gsap.set('[data-porog-bloom]', { autoAlpha: 0.5 })
+        gsap.set('[data-porog-bloom]', { autoAlpha: 0.33 })
         gsap.set('[data-porog-line]', { autoAlpha: 1, y: 0 })
       })
     }, el)

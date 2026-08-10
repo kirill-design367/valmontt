@@ -22,11 +22,11 @@
 }
 
 /* ------------------------------------------------------------------ *
- * Иней. Радиусы фильтров заданы намертво и не анимируются: движение —
- * только прозрачность. В покое GSAP держит autoAlpha 0, то есть
- * visibility: hidden, и композитор эти слои не считает вовсе.
+ * Стекло. Ни одного фильтра в рантайме: размытие живёт внутри файла
+ * подложки, слои двигаются только прозрачностью. В покое GSAP держит
+ * autoAlpha 0, то есть visibility: hidden, — композитор их не считает.
  * ------------------------------------------------------------------ */
-.frostBlur,
+.frost,
 .frostEdge {
   position: absolute;
   inset: 0;
@@ -37,25 +37,78 @@
   opacity: 0;
 }
 
-.frostBlur {
-  backdrop-filter: blur(26px) saturate(0.55) brightness(1.24) contrast(0.86);
-  -webkit-backdrop-filter: blur(26px) saturate(0.55) brightness(1.24) contrast(0.86);
-  background: rgba(214, 224, 236, 0.17);
+/* Размытая копия того же кадра, что лежит в подложке hero, посаженная ровно
+   на своё место: рамка стоит на глазу — сквозь стекло виден размытый глаз,
+   а не абстрактное пятно.
+   Отсчёт: собственное начало координат линзы = (--eye-x − 50 % ширины,
+   --eye-y − 30 % высоты), подложка hero растянута на вьюпорт с запасом
+   24 px по кругу — отсюда эти три слагаемых. */
+.glass {
+  position: absolute;
+  width: calc(100vw + 48px);
+  height: calc(var(--viewport-h, 100vh) + 48px);
+  left: calc(50% - var(--eye-x, 58.7vw) - 24px);
+  top: calc(30% - var(--eye-y, 24vh) - 24px);
+  background-image: var(--glass-desk);
+  background-size: cover;
+  background-position: center;
+  /* собственный слой композитора: дыхание рамки масштабирует уже готовую
+     текстуру, а не перерисовывает картинку в каждом кадре */
+  transform: translateZ(0);
+  backface-visibility: hidden;
 }
 
-/* опушка по краям — она проступает первой, поэтому иней читается
-   как наросший от кромки внутрь */
+/* Холодная плёнка поверх стекла. Белого ровно 6 % — выше стекло сразу
+   становится молочным; остальное даёт лёгкий синевато-серый подтон. */
+.frost::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(
+      155deg,
+      rgba(198, 216, 236, 0.1) 0%,
+      rgba(164, 188, 214, 0.05) 55%,
+      rgba(140, 166, 198, 0.02) 100%
+    ),
+    rgba(255, 255, 255, 0.06);
+}
+
+/* Блик: отражение падает в левый верхний угол и сходит на нет к правому
+   нижнему — так ведёт себя настоящее стекло под источником сверху слева. */
 .frostEdge {
   background: radial-gradient(
-    closest-side,
-    rgba(255, 255, 255, 0) 26%,
-    rgba(226, 234, 244, 0.16) 68%,
-    rgba(232, 240, 250, 0.36) 100%
+    120% 100% at 6% 2%,
+    rgba(255, 255, 255, 0.16) 0%,
+    rgba(255, 255, 255, 0.05) 30%,
+    rgba(255, 255, 255, 0) 58%
   );
-  /* тонкое свечение по самой кромке рамки */
-  box-shadow:
-    inset 0 0 0 1px rgba(255, 255, 255, 0.5),
-    0 0 22px rgba(214, 226, 240, 0.28);
+  box-shadow: 0 0 26px rgba(200, 216, 236, 0.14);
+}
+
+/* Волосяная кромка того же блика. Градиент лежит в рамке толщиной в пиксель:
+   маска вырезает из него внутреннюю область, остаётся только сама линия. */
+.frostEdge::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(
+    138deg,
+    rgba(255, 255, 255, 0.85) 0%,
+    rgba(255, 255, 255, 0.3) 26%,
+    rgba(255, 255, 255, 0.07) 52%,
+    rgba(255, 255, 255, 0) 74%
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask-composite: exclude;
 }
 
 .arrow {
@@ -125,10 +178,20 @@
 
 @media (max-width: 767px) {
   .lens {
-    width: 10.5rem;
+    /* было 10.5rem: самая длинная строка данных, «ВЕРХНИЙ ЗАЛ, ВАЛЬМОНТ»,
+       упиралась в край рамки и обрезалась на полуслове */
+    width: 12.2rem;
     height: 13.5rem;
     border-radius: 20px;
     padding: 0.8rem 0.9rem 1rem;
+  }
+
+  /* На телефоне рамка стоит не на глазу, а в нижней трети (right/bottom),
+     поэтому начало координат считается от правого нижнего угла. */
+  .glass {
+    background-image: var(--glass-mob);
+    left: calc(100% + 5.6rem - 100vw - 23px);
+    top: calc(100% + 1.6rem - var(--viewport-h, 100vh) - 23px);
   }
 
   .row > span {

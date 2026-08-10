@@ -91,7 +91,8 @@ export function useHeroMotion(root: React.RefObject<HTMLElement | null>) {
             '[data-bloom]',
             { opacity: 0 },
             {
-              opacity: (i, el: HTMLElement) => (el.dataset.bloom === 'far' ? 0.62 : 0.85),
+              // убавлено на треть — см. .bloomNear/.bloomFar в Hero.module.css
+              opacity: (i, el: HTMLElement) => (el.dataset.bloom === 'far' ? 0.42 : 0.57),
               duration: 1.4,
               stagger: 0.18,
               ease: 'power2.out',
@@ -190,7 +191,7 @@ export function useHeroMotion(root: React.RefObject<HTMLElement | null>) {
         gsap.set('[data-bg-image]', { scale: 1, opacity: 1 })
         gsap.set('[data-wordmark-slide]', { yPercent: 0 })
         gsap.set('[data-wordmark]', { opacity: 1 })
-        gsap.set('[data-bloom]', { opacity: (i, el: HTMLElement) => (el.dataset.bloom === 'far' ? 0.62 : 0.85) })
+        gsap.set('[data-bloom]', { opacity: (i, el: HTMLElement) => (el.dataset.bloom === 'far' ? 0.42 : 0.57) })
         gsap.set('[data-line]', { yPercent: 0 })
         gsap.set('[data-late]', { y: 0, opacity: 1 })
       })

@@ -122,34 +122,32 @@ export default function Zapis() {
               />
             </label>
 
-            <div className={s.row} data-out>
-              <label className={s.field} data-empty={empty.phone}>
-                <span className={s.label}>Телефон</span>
-                <input
-                  className={s.input}
-                  type="tel"
-                  name="phone"
-                  autoComplete="tel"
-                  placeholder="+7"
-                  value={values.phone}
-                  onChange={set('phone')}
-                />
-              </label>
+            <label className={s.field} data-empty={empty.phone} data-out>
+              <span className={s.label}>Телефон</span>
+              <input
+                className={s.input}
+                type="tel"
+                name="phone"
+                autoComplete="tel"
+                placeholder="+7"
+                value={values.phone}
+                onChange={set('phone')}
+              />
+            </label>
 
-              <label className={s.field} data-empty={empty.seats}>
-                <span className={s.label}>Мест</span>
-                <input
-                  className={s.input}
-                  type="number"
-                  name="seats"
-                  min={1}
-                  max={6}
-                  inputMode="numeric"
-                  value={values.seats}
-                  onChange={set('seats')}
-                />
-              </label>
-            </div>
+            <label className={s.field} data-empty={empty.seats} data-out>
+              <span className={s.label}>Мест</span>
+              <input
+                className={s.input}
+                type="number"
+                name="seats"
+                min={1}
+                max={6}
+                inputMode="numeric"
+                value={values.seats}
+                onChange={set('seats')}
+              />
+            </label>
 
             <button className={s.submit} type="submit" data-out>
               Отправить
@@ -163,11 +161,6 @@ export default function Zapis() {
                 />
               </svg>
             </button>
-
-            <p className={s.hint} data-out>
-              Форма никуда не отправляется: у концепта нет сервера. Номер
-              приглашения генерируется здесь же, в браузере.
-            </p>
           </form>
 
           <div className={s.done} ref={done} aria-live="polite">

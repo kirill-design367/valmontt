@@ -31,6 +31,11 @@ export const ASSETS = {
   /** кроп глаза для финального блока — вырезан из той же подложки */
   porogEye: a('/porog-eye.jpg', 'Глаз грифона крупным планом'),
 
+  /* Размытые копии подложки для стекла линзы. Размытие испечено в файл
+     (scripts/make-glass.py), в браузере фильтров нет — см. CLAUDE.md. */
+  heroDesktopGlass: a('/valmont-desktop-glass.jpg', ''),
+  heroMobileGlass: a('/valmont-mobile-glass.jpg', ''),
+
   /* --- бестиарий -------------------------------------------------------- */
   beastGrifon: a('/valmont-desktop.jpg', 'Грифон: орлиная голова, перья малины и бирюзы в потемневшей бронзе'),
   beastViverna: a('/placeholder/beast-viverna.jpg', 'Виверна — временный кадр', true),

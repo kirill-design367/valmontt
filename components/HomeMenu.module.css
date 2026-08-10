@@ -1,0 +1,115 @@
+/* ------------------------------------------------------------------ *
+ * Бургер: на обложке его нет, он выходит уже поверх ленты.
+ * Стартовое состояние задано стилями — иначе кнопка мигнёт на первом
+ * экране до того, как ScrollTrigger успеет её убрать.
+ * ------------------------------------------------------------------ */
+.burger {
+  position: fixed;
+  z-index: 60;
+  left: var(--gutter);
+  top: 0;
+  height: var(--nav-h);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 6px;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  visibility: hidden;
+  opacity: 0;
+}
+
+.burger span {
+  display: block;
+  height: 1px;
+  background: var(--color-bone);
+  /* ширина растёт от левого края (флекс-колонка), а поворот идёт вокруг
+     середины — иначе на открытии линии складываются не в крест, а в галочку */
+  transform-origin: 50% 50%;
+  transition:
+    width 0.5s var(--ease-out-quint),
+    transform 0.5s var(--ease-out-quint);
+}
+
+.burger span:first-child {
+  width: 22px;
+}
+
+.burger span:last-child {
+  width: 13px;
+}
+
+.burger:hover span:last-child {
+  width: 22px;
+}
+
+/* открытая кнопка складывается в косой крест */
+.burgerOpen span:first-child {
+  transform: translateY(3.5px) rotate(45deg);
+}
+
+.burgerOpen span:last-child {
+  width: 22px;
+  transform: translateY(-3.5px) rotate(-45deg);
+}
+
+/* ------------------------------------------------------------------ *
+ * Панель разделов
+ * ------------------------------------------------------------------ */
+.panel {
+  position: fixed;
+  inset: 0;
+  z-index: 58;
+  display: grid;
+  /* по вертикали — центр, по горизонтали — та же левая вертикаль, на которой
+     стоит заголовок обложки: панель читается как продолжение композиции */
+  align-items: center;
+  justify-items: start;
+  background:
+    radial-gradient(120% 90% at 18% 8%, rgba(24, 24, 32, 0.9) 0%, rgba(7, 7, 10, 0.97) 62%),
+    var(--color-void);
+  visibility: hidden;
+  opacity: 0;
+}
+
+.list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1em;
+  padding: 0 var(--gutter);
+}
+
+/* маска строки: пункт выезжает из-под собственного края */
+.cell {
+  overflow: hidden;
+  padding-bottom: 0.06em;
+}
+
+.item {
+  display: block;
+  font-family: var(--font-display);
+  font-size: clamp(2.1rem, 7.2vw, 4.6rem);
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--color-bone);
+  opacity: 0.78;
+  transition: opacity 0.3s cubic-bezier(0.215, 0.61, 0.355, 1);
+  will-change: transform;
+}
+
+.item:hover,
+.item:focus-visible {
+  opacity: 1;
+}
+
+@media (max-width: 767px) {
+  .burger {
+    height: 3.75rem;
+  }
+}
