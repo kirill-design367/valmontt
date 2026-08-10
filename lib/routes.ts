@@ -2,9 +2,11 @@
 export const ROUTES = [
   { href: '/', label: 'ГЛАВНАЯ', curtain: 'ВАЛЬМОНТ' },
   { href: '/programma', label: 'ПРОГРАММА', curtain: 'ПРОГРАММА' },
-  { href: '/gosti', label: 'ГОСТИ', curtain: 'ГОСТИ' },
+  // адреса не трогаем, чтобы не ломать ссылки: /gosti и /zapis остались,
+  // сменились только подписи
+  { href: '/gosti', label: 'ВХОД', curtain: 'ВХОД' },
   { href: '/mesto', label: 'МЕСТО', curtain: 'МЕСТО' },
-  { href: '/zapis', label: 'ЗАПИСЬ', curtain: 'ЗАПИСЬ' },
+  { href: '/zapis', label: 'ПРИГЛАШЕНИЕ', curtain: 'ПРИГЛАШЕНИЕ' },
 ] as const
 
 /** Пункты, которые показывает навигация hero — без «Главной». */

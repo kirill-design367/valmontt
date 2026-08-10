@@ -11,7 +11,7 @@ import { ASSETS, formats } from '@/lib/assets'
 import s from './Hero.module.css'
 
 /** Две строки горизонтального набора; перенос задаём мы, а не ширина колонки. */
-const HEADLINE = ['НОЧЬ, КОГДА', 'ГЕРБ ОЖИВАЕТ']
+const HEADLINE = ['ВЕЧЕР', 'БЕЗ СВИДЕТЕЛЕЙ']
 
 const desk = formats(ASSETS.heroDesktop)
 const mob = formats(ASSETS.heroMobile)
@@ -94,12 +94,12 @@ export default function Hero() {
 
           <div className={s.lede}>
             <p className={s.ledeText} data-late>
-              <span>Закрытый вечер в горах Вальмонта.</span>
-              <span>Музыка, свет и звери, которых не существует.</span>
+              <span>Закрытая вечеринка в горах Вальмонта.</span>
+              <span>Только по приглашениям.</span>
             </p>
 
             <AppLink className={s.pill} href="/zapis" ref={pill} data-late>
-              Забронировать
+              Приглашение
               <svg className={s.pillIcon} data-pill-icon viewBox="0 0 15 15" fill="none" aria-hidden="true">
                 <path
                   d="M4.4 10.6 10.6 4.4M5.6 4.4h5v5"

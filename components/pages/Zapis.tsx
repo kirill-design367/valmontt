@@ -8,12 +8,8 @@ import s from './Zapis.module.css'
 
 type Fields = { name: string; phone: string; seats: string }
 
-/** Номер приглашения. Сервера нет — собираем на клиенте из времени и случайности. */
-function makeNumber() {
-  const n = Math.floor(Math.random() * 9000) + 1000
-  const d = new Date()
-  return `В-${String(d.getMonth() + 1).padStart(2, '0')}${String(d.getDate()).padStart(2, '0')}-${n}`
-}
+/** Ответ формы. Неразрывный пробел — иначе флекс схлопнет разрыв между словами. */
+const ОТВЕТ = 'Запрос\u00A0принят'
 
 export default function Zapis() {
   const root = useRef<HTMLDivElement>(null)
@@ -25,7 +21,7 @@ export default function Zapis() {
     phone: false,
     seats: false,
   })
-  const [ticket, setTicket] = useState('')
+  const [отправлено, setОтправлено] = useState(false)
 
   useReveal(root, { stagger: 0.07 })
 
@@ -53,8 +49,7 @@ export default function Zapis() {
       return
     }
 
-    const number = makeNumber()
-    setTicket(number)
+    setОтправлено(true)
 
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     if (reduce) {
@@ -89,13 +84,11 @@ export default function Zapis() {
   }
 
   return (
-    <PageShell title="ЗАПИСЬ">
+    <PageShell title="ПРИГЛАШЕНИЕ">
       <div className={s.wrap} ref={root}>
         <div data-reveal-group>
           <h1 className="t-page" data-reveal-fade>
-            Пригласительный
-            <br />
-            билет
+            Запрос
           </h1>
           <p className={s.lede} data-reveal-fade>
             Мест немного, и они не продаются. Оставьте имя и телефон — если вы
@@ -105,7 +98,7 @@ export default function Zapis() {
 
         <div className={s.ticket} data-reveal-fade>
           <span className={s.stamp} aria-hidden="true">
-            ВАЛЬМОНТ · 14 ФЕВРАЛЯ
+            ВАЛЬМОНТ · ВЕРХНИЙ ЗАЛ
           </span>
 
           <form className={s.form} ref={form} onSubmit={submit} noValidate>
@@ -164,18 +157,15 @@ export default function Zapis() {
           </form>
 
           <div className={s.done} ref={done} aria-live="polite">
-            <span className={s.doneLabel} data-line>
-              Номер приглашения
-            </span>
             <span className={s.number}>
-              {ticket.split('').map((ch, i) => (
+              {(отправлено ? ОТВЕТ : '').split('').map((ch, i) => (
                 <span data-char key={`${ch}-${i}`}>
                   {ch}
                 </span>
               ))}
             </span>
             <span className={s.donePromise} data-line>
-              Мы напишем вам до 1 февраля.
+              Если вас знают, с вами свяжутся
             </span>
           </div>
         </div>

@@ -8,30 +8,29 @@ import { FULL } from "@/lib/reveal";
 import AppLink from "../AppLink";
 import { useReveal } from "@/lib/reveal";
 import { useLetterAssembly } from "@/lib/letters";
-import { ASSETS, type Asset } from "@/lib/assets";
-import Plate from "../Plate";
 import s from "./Home.module.css";
 
 const MANIFEST = [
-  "Раз в год гора закрывается.",
-  "Внутрь входят те, кого позвали.",
-  "Наружу не выходит ничего.",
+  "Одна ночь. Один зал.",
+  "Двести человек.",
+  "Ни одной фотографии.",
 ];
 
 const SLOTS = [
-  { time: "21:00", name: "Открытие ворот" },
-  { time: "00:00", name: "Герб оживает" },
-  { time: "04:00", name: "Последний круг" },
+  { time: "21:00", name: "Сбор" },
+  { time: "00:00", name: "Основной сет" },
+  { time: "04:00", name: "Закрытие" },
 ];
 
-const BEASTS: { name: string; asset: Asset }[] = [
-  { name: "ГРИФОН", asset: ASSETS.beastGrifon },
-  { name: "ВИВЕРНА", asset: ASSETS.beastViverna },
-  { name: "ЛАМАССУ", asset: ASSETS.beastLamassu },
-  { name: "КАТОБЛЕПАС", asset: ASSETS.beastKatoblepas },
+/** Четыре правила входа — те же, что развёрнуты на /gosti. */
+const ENTRY = [
+  { name: "СПИСОК", note: "Закрывается за месяц" },
+  { name: "ПРИГЛАШЕНИЕ", note: "На бумаге, на одного" },
+  { name: "ТЕЛЕФОНЫ", note: "Сдаются на въезде" },
+  { name: "СЪЁМКА", note: "Запрещена везде" },
 ];
 
-const FINAL_DATE = ["14 ФЕВРАЛЯ"];
+const FINAL_DATE = ["Одна ночь в году"];
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -124,28 +123,29 @@ export default function HomeFlow() {
         </div>
       </section>
 
-      {/* ---------- Тизер бестиария ---------- */}
+      {/* ---------- Тизер входа ---------- */}
       <section className={s.section} data-reveal-group>
         <span className={s.line}>
           <span className="t-block" data-reveal style={{ display: "block" }}>
-            Кого позвали
+            Вход
           </span>
         </span>
 
-        <div className={s.beasts}>
-          {BEASTS.map((beast) => (
+        <p className={s.teaser} data-reveal-fade>
+          Как сюда попадают
+        </p>
+
+        <div className={s.entries}>
+          {ENTRY.map((rule) => (
             <AppLink
-              className={s.beastCard}
+              className={s.entryCard}
               href="/gosti"
-              key={beast.name}
+              key={rule.name}
               data-reveal-fade
-              aria-label={`${beast.name} — открыть бестиарий`}
+              aria-label={`${rule.name} — правила входа`}
             >
-              <Plate asset={beast.asset} />
-              <span className={s.beastName}>{beast.name}</span>
-              {beast.asset.todo && (
-                <span className={s.beastTodo}>КАДР В РАБОТЕ</span>
-              )}
+              <span className={s.entryName}>{rule.name}</span>
+              <span className={s.entryNote}>{rule.note}</span>
             </AppLink>
           ))}
         </div>
@@ -167,7 +167,7 @@ export default function HomeFlow() {
               Вальмонт, верхний зал
             </p>
             <AppLink className={s.finalCta} href="/zapis" data-reveal-fade>
-              Забронировать
+              Приглашение
               <svg viewBox="0 0 15 15" fill="none" aria-hidden="true">
                 <path
                   d="M4.4 10.6 10.6 4.4M5.6 4.4h5v5"

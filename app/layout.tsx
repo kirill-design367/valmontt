@@ -4,9 +4,8 @@ import SiteChrome from '@/components/SiteChrome'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'ВАЛЬМОНТ — ночь, когда герб оживает',
-  description:
-    'Закрытый вечер в горах Вальмонта. Музыка, свет и звери, которых не существует.',
+  title: 'ВАЛЬМОНТ — вечер без свидетелей',
+  description: 'Закрытая вечеринка в горах Вальмонта. Только по приглашениям.',
 }
 
 export const viewport: Viewport = {

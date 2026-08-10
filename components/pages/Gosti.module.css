@@ -1,153 +1,58 @@
-/* Бестиарий: блок на зверя, следующий наезжает поверх предыдущего. */
-.stack {
+/* Вход: только типографика и воздух. Ни одного изображения на странице. */
+.wrap {
   position: relative;
+  max-width: 68rem;
 }
 
-.beast {
-  /* Стопка липких экранов: предыдущий зверь стоит, следующий наезжает
-     поверх него. Это и есть «смена с перекрытием», без резкого стыка. */
-  position: sticky;
-  top: 0;
-  height: 100dvh;
-  min-height: 34rem;
-  overflow: hidden;
-  background: var(--color-void);
-}
-
-.sticky {
-  position: absolute;
-  inset: 0;
-  overflow: hidden;
-}
-
-.plate {
-  position: absolute;
-  inset: 0;
-}
-
-.plate img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  will-change: transform;
-}
-
-.shade {
-  position: absolute;
-  inset: 0;
-  background:
-    linear-gradient(180deg, rgba(7, 7, 10, 0.72) 0%, rgba(7, 7, 10, 0) 32%),
-    linear-gradient(0deg, rgba(7, 7, 10, 0.85) 0%, rgba(7, 7, 10, 0) 46%);
-}
-
-/* Имя вертикально вдоль края. Сторона чередуется: слева, справа, слева, справа */
-.name {
-  font-family: var(--font-display);
-  position: absolute;
-  top: 50%;
-  z-index: 3;
-  transform: translateY(-50%);
-  writing-mode: vertical-rl;
-  text-orientation: mixed;
-  font-size: var(--v-poster);
-  font-weight: 400;
-  line-height: 1;
-  letter-spacing: var(--track-vert);
-  color: var(--color-bone);
-  white-space: nowrap;
-  user-select: none;
-}
-
-.left .name {
-  left: clamp(1rem, 3vw, 3rem);
-}
-
-.right .name {
-  right: clamp(1rem, 3vw, 3rem);
-}
-
-.caption {
-  position: absolute;
-  bottom: calc(var(--step) * 8);
-  z-index: 3;
-  max-width: min(30rem, 62vw);
-}
-
-.left .caption {
-  right: clamp(2.5rem, 7vw, 7rem);
-  text-align: right;
-}
-
-.right .caption {
-  left: clamp(2.5rem, 7vw, 7rem);
-}
-
-.what {
+.mask {
   display: block;
-  font-size: var(--t3);
-  font-weight: 500;
-  line-height: var(--lh-snug);
+  overflow: hidden;
+}
+
+/* маска снята: разлетевшиеся литеры выходят за строку */
+.free {
+  overflow: visible;
+}
+
+.rules {
+  list-style: none;
+  margin-top: calc(var(--step) * 14);
+}
+
+.rule {
+  padding-bottom: calc(var(--step) * 16);
+}
+
+.rule:last-child {
+  padding-bottom: 0;
+}
+
+/* Правило названо крупно — это и есть содержание страницы. */
+.name {
+  display: block;
+  font-family: var(--font-display);
+  font-size: var(--t2);
+  font-weight: 400;
+  line-height: var(--lh-tight);
   letter-spacing: var(--track-tight);
 }
 
-.when {
+.note {
   display: block;
-  margin-top: var(--step);
-  font-size: var(--t5);
+  margin-top: calc(var(--step) * 2);
+  max-width: 30rem;
+  font-size: var(--t4);
   font-weight: 300;
   line-height: var(--lh-text);
-  letter-spacing: var(--track-wide);
-  text-transform: uppercase;
   color: var(--text-dim);
 }
 
-.todo {
-  position: absolute;
-  top: calc(var(--nav-h) + var(--step) * 2);
-  z-index: 3;
-  font-size: var(--t5);
-  font-weight: 300;
-  letter-spacing: var(--track-wide);
-  color: rgba(255, 255, 255, 0.5);
-  border: 1px solid rgba(255, 255, 255, 0.22);
-  border-radius: 999px;
-  padding: 4px 9px;
-}
-
-.left .todo {
-  right: var(--gutter);
-}
-
-.right .todo {
-  left: var(--gutter);
-}
-
 @media (max-width: 767px) {
-  /* На телефоне имя уводим наверх, а подпись кладём на всю ширину внизу —
-     сбоку они не разойдутся. */
-  .name {
-    top: calc(var(--nav-h) + var(--step) * 2);
-    transform: none;
+  .rules {
+    margin-top: calc(var(--step) * 8);
   }
 
-  .left .name,
-  .right .name {
-    left: auto;
-    right: 0.9rem;
-  }
-
-  .caption,
-  .left .caption {
-    left: var(--gutter);
-    right: var(--gutter);
-    max-width: none;
-    text-align: left;
-    bottom: calc(var(--step) * 5);
-  }
-
-  .left .todo,
-  .right .todo {
-    left: var(--gutter);
-    right: auto;
+  .rule {
+    padding-bottom: calc(var(--step) * 8);
   }
 }

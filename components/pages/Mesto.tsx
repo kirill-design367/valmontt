@@ -13,10 +13,10 @@ import s from './Mesto.module.css'
 gsap.registerPlugin(ScrollTrigger)
 
 const FRAMES: { name: string; note: string; asset: Asset }[] = [
-  { name: 'ДОРОГА', note: 'Последние двенадцать километров без фонарей', asset: ASSETS.placeDoroga },
-  { name: 'ВОРОТА', note: 'Открываются один раз за ночь', asset: ASSETS.placeVorota },
-  { name: 'ВЕРХНИЙ ЗАЛ', note: 'Здесь стоит герб', asset: ASSETS.placeZal },
-  { name: 'ТЕРРАСА', note: 'Отсюда видно, как гора выдыхает', asset: ASSETS.placeTerrasa },
+  { name: 'ДОРОГА', note: 'Двенадцать километров без фонарей', asset: ASSETS.placeDoroga },
+  { name: 'ВОРОТА', note: 'Дальше пешком', asset: ASSETS.placeVorota },
+  { name: 'ВЕРХНИЙ ЗАЛ', note: 'Двести человек, один зал', asset: ASSETS.placeZal },
+  { name: 'ТЕРРАСА', note: 'Курить только здесь', asset: ASSETS.placeTerrasa },
 ]
 
 export default function Mesto() {

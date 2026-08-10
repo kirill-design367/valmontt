@@ -5,7 +5,7 @@
  * на одну строку ниже и снимите `todo`. Больше ничего править не нужно:
  * компоненты берут кадры только отсюда.
  *
- * Заглушки — кропы настоящего грифона, затемнённые на 30 %
+ * Заглушки — кропы основного снимка, затемнённые на 30 %
  * (см. scripts/prepare-assets.py): композиция читается, но видно, что это
  * временный кадр.
  */
@@ -25,11 +25,11 @@ const a = (src: string, alt: string, todo?: true): Asset => ({ src, alt, todo })
 
 export const ASSETS = {
   /* --- боевые кадры ----------------------------------------------------- */
-  heroDesktop: a('/valmont-desktop.jpg', 'Грифон — герб Вальмонта, орлиная голова в три четверти'),
-  heroMobile: a('/valmont-mobile.jpg', 'Грифон — герб Вальмонта, крупный план глаза'),
+  heroDesktop: a('/valmont-desktop.jpg', 'Хищная птица в три четверти, оперение в малине и бирюзе'),
+  heroMobile: a('/valmont-mobile.jpg', 'Хищная птица, крупный план глаза'),
 
   /** кроп глаза для финального блока — вырезан из той же подложки */
-  porogEye: a('/porog-eye.jpg', 'Глаз грифона крупным планом'),
+  porogEye: a('/porog-eye.jpg', 'Глаз птицы крупным планом'),
 
   /* Размытые копии подложки для стекла линзы. Размытие испечено в файл
      (scripts/make-glass.py), в браузере фильтров нет — см. CLAUDE.md. */
@@ -38,12 +38,6 @@ export const ASSETS = {
   /* Обратная сторона панели показывает всё зеркально — для неё отражённые. */
   heroDesktopGlassMirror: a('/valmont-desktop-glass-mirror.jpg', ''),
   heroMobileGlassMirror: a('/valmont-mobile-glass-mirror.jpg', ''),
-
-  /* --- бестиарий -------------------------------------------------------- */
-  beastGrifon: a('/valmont-desktop.jpg', 'Грифон: орлиная голова, перья малины и бирюзы в потемневшей бронзе'),
-  beastViverna: a('/placeholder/beast-viverna.jpg', 'Виверна — временный кадр', true),
-  beastLamassu: a('/placeholder/beast-lamassu.jpg', 'Ламассу — временный кадр', true),
-  beastKatoblepas: a('/placeholder/beast-katoblepas.jpg', 'Катоблепас — временный кадр', true),
 
   /* --- место ------------------------------------------------------------ */
   placeDoroga: a('/placeholder/place-doroga.jpg', 'Дорога к Вальмонту — временный кадр', true),
