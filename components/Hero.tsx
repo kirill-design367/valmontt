@@ -95,11 +95,11 @@ export default function Hero() {
           <div className={s.lede}>
             <p className={s.ledeText} data-late>
               <span>Закрытая вечеринка в горах Вальмонта.</span>
-              <span>Только по приглашениям.</span>
+              <span>Попасть можно, если найдёте как.</span>
             </p>
 
             <AppLink className={s.pill} href="/zapis" ref={pill} data-late>
-              Приглашение
+              Замок
               <svg className={s.pillIcon} data-pill-icon viewBox="0 0 15 15" fill="none" aria-hidden="true">
                 <path
                   d="M4.4 10.6 10.6 4.4M5.6 4.4h5v5"

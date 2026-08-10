@@ -1,11 +1,11 @@
 import type { Metadata } from 'next'
-import Zapis from '@/components/pages/Zapis'
+import Zamok from '@/components/pages/Zamok'
 
 export const metadata: Metadata = {
-  title: 'ВАЛЬМОНТ — приглашение',
-  description: 'Запрос на приглашение. Мест немного, и они не продаются.',
+  title: 'ВАЛЬМОНТ — замок',
+  description: 'Четыре цифры открывают дверь. Код собирается на самом сайте.',
 }
 
 export default function Page() {
-  return <Zapis />
+  return <Zamok />
 }

@@ -1,13 +1,11 @@
 /**
  * ЕДИНСТВЕННОЕ место, где живут пути к изображениям.
  *
- * Чтобы подставить настоящий снимок вместо заглушки — поменяйте `src`
- * на одну строку ниже и снимите `todo`. Больше ничего править не нужно:
- * компоненты берут кадры только отсюда.
+ * Чтобы подставить другой снимок — поменяйте `src` на одной строке ниже.
+ * Больше ничего править не нужно: компоненты берут кадры только отсюда.
  *
- * Заглушки — кропы основного снимка, затемнённые на 30 %
- * (см. scripts/prepare-assets.py): композиция читается, но видно, что это
- * временный кадр.
+ * Заглушек в реестре больше нет: все кадры настоящие, `pendingAssets()`
+ * возвращает пусто.
  */
 
 const BASE = process.env.NEXT_PUBLIC_BASE_PATH ?? ''
@@ -17,11 +15,20 @@ export type Asset = {
   src: string
   /** описание для alt */
   alt: string
+  /** натуральный размер файла — из него считается пропорция кропа */
+  w?: number
+  h?: number
   /** true — пока заглушка, ждёт настоящий файл */
   todo?: true
 }
 
-const a = (src: string, alt: string, todo?: true): Asset => ({ src, alt, todo })
+const a = (src: string, alt: string, w?: number, h?: number): Asset => ({ src, alt, w, h })
+
+/** Пара кадров одной локации: горизонтальный на десктоп, вертикальный на телефон. */
+export type Пара = { wide: Asset; tall: Asset }
+
+/** Фактическая пропорция файла — её же браузер использует для кропа. */
+export const пропорция = (asset: Asset) => (asset.w && asset.h ? asset.w / asset.h : 1)
 
 export const ASSETS = {
   /* --- боевые кадры ----------------------------------------------------- */
@@ -39,11 +46,19 @@ export const ASSETS = {
   heroDesktopGlassMirror: a('/valmont-desktop-glass-mirror.jpg', ''),
   heroMobileGlassMirror: a('/valmont-mobile-glass-mirror.jpg', ''),
 
-  /* --- место ------------------------------------------------------------ */
-  placeDoroga: a('/placeholder/place-doroga.jpg', 'Дорога к Вальмонту — временный кадр', true),
-  placeVorota: a('/placeholder/place-vorota.jpg', 'Ворота Вальмонта — временный кадр', true),
-  placeZal: a('/placeholder/place-zal.jpg', 'Верхний зал — временный кадр', true),
-  placeTerrasa: a('/placeholder/place-terrasa.jpg', 'Терраса — временный кадр', true),
+  /* --- место: четыре локации, по два кадра на каждую ---------------------
+     Пропорции у присланных файлов НЕ номинальные: 1.792 у горизонтальных
+     против 1.778 у шестнадцати к девяти и 0.558 у вертикальных против
+     0.5625. Кроп в браузере считается от фактических чисел — они лежат
+     тут же, в `w` и `h`, и уходят в CSS как `--ar`. */
+  placeDorogaWide: a('/place/doroga-wide.jpg', 'Горная дорога ночью, свет фар из-за поворота', 2048, 1143),
+  placeDorogaTall: a('/place/doroga-tall.jpg', 'Горная дорога ночью, фары вдалеке', 1080, 1935),
+  placeVorotaWide: a('/place/vorota-wide.jpg', 'Кованые ворота в каменной стене, фонарь над ними', 2048, 1143),
+  placeVorotaTall: a('/place/vorota-tall.jpg', 'Кованые ворота под снегом, фонарь над ними', 1080, 1935),
+  placeZalWide: a('/place/zal-wide.jpg', 'Пустой зал, косой луч света на паркете', 2048, 1143),
+  placeZalTall: a('/place/zal-tall.jpg', 'Пустой зал, свет из окон вдоль стены', 1080, 1935),
+  placeTerrasaWide: a('/place/terrasa-wide.jpg', 'Каменная терраса над горами, перила в снегу', 2048, 1143),
+  placeTerrasaTall: a('/place/terrasa-tall.jpg', 'Каменная балюстрада террасы, стакан на перилах', 1080, 1935),
 } as const
 
 /** Полный URL с учётом basePath — им пользуются компоненты. */

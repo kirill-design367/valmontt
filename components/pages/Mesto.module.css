@@ -18,20 +18,42 @@
   height: 100dvh;
   overflow: hidden;
   border-right: 1px solid rgba(255, 255, 255, 0.08);
+  /* контейнер по размеру: из него считается прямоугольник кропа ниже */
+  container-type: size;
 }
 
 .frame img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transform: scale(1.06);
 }
 
+/* Подложка под подписью: не выше 40 % чёрного и плавный уход в ноль —
+   видимой границы нет, а имя кадра держится на любом снимке. */
 .frame::after {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(0deg, rgba(7, 7, 10, 0.88) 0%, rgba(7, 7, 10, 0) 44%);
+  background: linear-gradient(0deg, rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0.22) 18%, rgba(0, 0, 0, 0) 42%);
+}
+
+/* Прямоугольник, который снимок реально занимает после object-fit: cover.
+   Формула та же, что у cover: сторона тянется до большей из двух — отсюда
+   max(). Пропорция приходит из lib/assets.ts фактическим числом файла,
+   поэтому маркер сидит на содержимом кадра, а не на рамке. */
+.stage {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: max(100cqw, calc(100cqh * var(--ar)));
+  height: max(100cqh, calc(100cqw / var(--ar)));
+  transform: translate(-50%, -50%);
+  z-index: 3;
+  pointer-events: none;
+}
+
+.stage > * {
+  pointer-events: auto;
 }
 
 .cap {
@@ -77,19 +99,6 @@
   color: rgba(255, 255, 255, 0.5);
 }
 
-.todo {
-  position: absolute;
-  top: calc(var(--nav-h) + var(--step) * 2);
-  right: clamp(1.5rem, 3vw, 3.5rem);
-  z-index: 2;
-  font-size: var(--t5);
-  font-weight: 300;
-  letter-spacing: var(--track-wide);
-  color: rgba(255, 255, 255, 0.5);
-  border: 1px solid rgba(255, 255, 255, 0.22);
-  border-radius: 999px;
-  padding: 4px 9px;
-}
 
 /* Подсказка «крутите» — уходит, как только лента поехала */
 .hint {
@@ -122,6 +131,12 @@
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   }
 
+  /* на телефоне показан вертикальный снимок — и пропорция кропа своя */
+  .stage {
+    width: max(100cqw, calc(100cqh * var(--ar-mob)));
+    height: max(100cqh, calc(100cqw / var(--ar-mob)));
+  }
+
   .cap {
     flex-direction: column;
     gap: 0.5rem;
@@ -132,8 +147,7 @@
     max-width: none;
   }
 
-  .capIndex,
-  .todo {
+  .capIndex {
     top: calc(var(--step) * 3);
   }
 

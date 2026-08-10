@@ -1,0 +1,182 @@
+/* Дверь стоит по оптическому центру экрана: страница целиком — это одна
+   дверь, и прижимать её к верхнему краю не за что. Набор остаётся левым,
+   как на остальных страницах. */
+.wrap {
+  position: relative;
+  max-width: 44rem;
+  min-height: calc(100dvh - var(--nav-h) - var(--section-y) * 2);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.lede {
+  max-width: var(--measure);
+  margin-top: calc(var(--step) * 4);
+  font-size: var(--t4);
+  font-weight: 300;
+  line-height: var(--lh-text);
+  color: var(--text-dim);
+}
+
+/* ------------------------------------------------------------------ *
+ * Четыре цифры
+ * ------------------------------------------------------------------ */
+.code {
+  display: flex;
+  gap: calc(var(--step) * 3);
+  margin-top: calc(var(--step) * 10);
+  will-change: transform;
+}
+
+.cell {
+  width: 72px;
+  height: 72px;
+  background: none;
+  border: 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 0;
+  font-family: var(--font-display);
+  /* Вывесочная ступень, а не текстовая: на десктопе это те же ~90 px, что
+     даёт --t1, но на телефоне --t1 поджат под заголовок обложки (он не
+     должен переноситься) и падает до 21 px — цифра замка стала бы мельче
+     подписи под собой. --v-poster считается от высоты экрана: 72 px. */
+  font-size: var(--v-poster);
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: var(--track-tight);
+  text-align: center;
+  color: var(--color-bone);
+  caret-color: var(--color-crimson);
+  transition: border-color 0.4s var(--ease-out-quint);
+  will-change: transform, opacity;
+}
+
+.cell:focus {
+  outline: none;
+  border-bottom-color: var(--color-bone);
+}
+
+/* Отказ: строка держится две секунды и уходит. */
+.otkaz {
+  margin-top: calc(var(--step) * 4);
+  font-size: var(--t4);
+  font-weight: 400;
+  line-height: var(--lh-text);
+  color: var(--color-crimson);
+  opacity: 0;
+  transition: opacity 0.35s var(--ease-out-quint);
+}
+
+.otkazOn {
+  opacity: 1;
+}
+
+/* ------------------------------------------------------------------ *
+ * Чернота. Четыре полосы едут к центру: только transform, ни одного
+ * анимируемого фильтра и ни одной перерисовки градиента.
+ * ------------------------------------------------------------------ */
+.veil {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  pointer-events: none;
+  visibility: hidden;
+  opacity: 0;
+}
+
+.bar {
+  position: absolute;
+  background: var(--color-void);
+  will-change: transform;
+}
+
+.barTop {
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 55%;
+  transform: translateY(-100%);
+}
+
+.barBottom {
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 55%;
+  transform: translateY(100%);
+}
+
+.barLeft {
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 55%;
+  transform: translateX(-100%);
+}
+
+.barRight {
+  top: 0;
+  bottom: 0;
+  right: 0;
+  width: 55%;
+  transform: translateX(100%);
+}
+
+/* ------------------------------------------------------------------ *
+ * Постер. После сборки кадр застывает: ни одного цикла.
+ * ------------------------------------------------------------------ */
+.final {
+  position: fixed;
+  inset: 0;
+  z-index: 71;
+  background: var(--color-void);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0 var(--gutter);
+  text-align: center;
+  visibility: hidden;
+  opacity: 0;
+}
+
+.time {
+  font-family: var(--font-display);
+  font-size: var(--v-poster);
+  font-weight: 400;
+  line-height: var(--lh-tight);
+  letter-spacing: var(--track-tight);
+  color: var(--color-bone);
+}
+
+.phrase {
+  /* воздух между временем и фразой — не меньше 12 % высоты экрана */
+  margin-top: 12dvh;
+  font-family: var(--font-display);
+  font-size: var(--t2);
+  font-weight: 400;
+  line-height: var(--lh-tight);
+  letter-spacing: var(--track-tight);
+  color: var(--color-crimson);
+}
+
+.note {
+  margin-top: calc(var(--step) * 6);
+  font-size: var(--t5);
+  font-weight: 300;
+  letter-spacing: var(--track-wide);
+  line-height: var(--lh-text);
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+@media (max-width: 767px) {
+  .code {
+    gap: calc(var(--step) * 2);
+    margin-top: calc(var(--step) * 8);
+  }
+
+  /* Четыре поля по 72 px с просветом 16 px — это 336 px, они помещаются на
+     390 px без сжатия. Размер поля на телефоне не трогаем. */
+}

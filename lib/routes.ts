@@ -6,7 +6,7 @@ export const ROUTES = [
   // сменились только подписи
   { href: '/gosti', label: 'ВХОД', curtain: 'ВХОД' },
   { href: '/mesto', label: 'МЕСТО', curtain: 'МЕСТО' },
-  { href: '/zapis', label: 'ПРИГЛАШЕНИЕ', curtain: 'ПРИГЛАШЕНИЕ' },
+  { href: '/zapis', label: 'ЗАМОК', curtain: 'ЗАМОК' },
 ] as const
 
 /** Пункты, которые показывает навигация hero — без «Главной». */

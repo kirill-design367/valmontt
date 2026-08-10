@@ -4,7 +4,7 @@ import { useEffect } from 'react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { SplitText } from 'gsap/SplitText'
-import { FULL } from './reveal'
+import { FULL, REDUCE } from './reveal'
 
 gsap.registerPlugin(ScrollTrigger, SplitText)
 
@@ -89,6 +89,37 @@ export function assembleLetters(el: HTMLElement, opts: Опции = {}) {
     tween.kill()
     split.revert()
   }
+}
+
+/**
+ * Та же сборка, но по времени, а не по скроллу: финальный экран замка
+ * собирается сам, скроллить там нечего. Разброс тот же самый — детерминизм
+ * и здесь важен, кадр обязан собираться одинаково.
+ */
+export function assembleLettersInTime(
+  el: HTMLElement,
+  { seed = 0, duration = 1.1, stagger = 0.014, delay = 0 } = {},
+) {
+  const split = new SplitText(el, { type: 'words,chars', aria: 'hidden' })
+  const мало = window.matchMedia(REDUCE).matches
+
+  if (мало) {
+    gsap.set(split.chars, { x: 0, y: 0, rotation: 0, autoAlpha: 1 })
+    return { tween: null, revert: () => split.revert() }
+  }
+
+  const tween = gsap.fromTo(
+    split.chars,
+    {
+      x: (i: number) => сдвиг(seed, i, 0) * РАЗЛЁТ,
+      y: (i: number) => сдвиг(seed, i, 1) * РАЗЛЁТ,
+      rotation: (i: number) => сдвиг(seed, i, 2) * ПОВОРОТ,
+      autoAlpha: 0,
+    },
+    { x: 0, y: 0, rotation: 0, autoAlpha: 1, duration, stagger, delay, ease: 'power3.out' },
+  )
+
+  return { tween, revert: () => { tween.kill(); split.revert() } }
 }
 
 /**

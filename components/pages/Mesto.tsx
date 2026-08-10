@@ -6,17 +6,42 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import PageShell from '../PageShell'
 import { FULL } from '@/lib/reveal'
 import { assembleLetters } from '@/lib/letters'
-import { ASSETS, type Asset } from '@/lib/assets'
+import { ASSETS, пропорция, type Asset } from '@/lib/assets'
+import { ЦИФРЫ } from '@/lib/quest'
+import Marker from '../Marker'
 import Plate from '../Plate'
 import s from './Mesto.module.css'
 
 gsap.registerPlugin(ScrollTrigger)
 
-const FRAMES: { name: string; note: string; asset: Asset }[] = [
-  { name: 'ДОРОГА', note: 'Двенадцать километров без фонарей', asset: ASSETS.placeDoroga },
-  { name: 'ВОРОТА', note: 'Дальше пешком', asset: ASSETS.placeVorota },
-  { name: 'ВЕРХНИЙ ЗАЛ', note: 'Двести человек, один зал', asset: ASSETS.placeZal },
-  { name: 'ТЕРРАСА', note: 'Курить только здесь', asset: ASSETS.placeTerrasa },
+/**
+ * Четыре кадра локации. На каждом спрятана цифра кода — маркер стоит в
+ * тёмной зоне снимка, подальше от подписи и от центра.
+ *
+ * КООРДИНАТЫ МАРКЕРОВ — в долях самого снимка, не рамки. Правятся здесь и
+ * больше нигде.
+ *
+ * Как получены. scripts/marker-zone.mjs замеряет фактическую обвязку кадра
+ * на пяти разрешениях (шапка, вертикальный номер кадра, нижняя подпись,
+ * счётчик) и то, что срезает object-fit: cover, — из этого выходит рамка,
+ * свободная на всех разрешениях сразу: wide x 0.25…0.78 y 0.20…0.60,
+ * tall x 0.20…0.84 y 0.28…0.70. Центр кадра исключён отдельно: маркер там
+ * читается как часть композиции, а не как метка. Внутри рамки
+ * scripts/marker-pick.py ищет самое тёмное ровное пятно — низкая средняя
+ * яркость и низкий разброс, чтобы тонкая окружность не спорила с рисунком.
+ */
+const МАРКЕРЫ = [
+  { wide: { x: 0.32, y: 0.256 }, tall: { x: 0.282, y: 0.336 } }, // дорога
+  { wide: { x: 0.3, y: 0.246 }, tall: { x: 0.302, y: 0.646 } }, // ворота
+  { wide: { x: 0.52, y: 0.246 }, tall: { x: 0.662, y: 0.336 } }, // верхний зал
+  { wide: { x: 0.32, y: 0.546 }, tall: { x: 0.282, y: 0.346 } }, // терраса
+]
+
+const FRAMES: { name: string; note: string; wide: Asset; tall: Asset }[] = [
+  { name: 'ДОРОГА', note: 'Двенадцать километров без фонарей', wide: ASSETS.placeDorogaWide, tall: ASSETS.placeDorogaTall },
+  { name: 'ВОРОТА', note: 'Дальше пешком', wide: ASSETS.placeVorotaWide, tall: ASSETS.placeVorotaTall },
+  { name: 'ВЕРХНИЙ ЗАЛ', note: 'Двести человек, один зал', wide: ASSETS.placeZalWide, tall: ASSETS.placeZalTall },
+  { name: 'ТЕРРАСА', note: 'Курить только здесь', wide: ASSETS.placeTerrasaWide, tall: ASSETS.placeTerrasaTall },
 ]
 
 export default function Mesto() {
@@ -104,12 +129,36 @@ export default function Mesto() {
       <div className={s.pin} ref={pin}>
         <div className={s.rail} ref={rail}>
           {FRAMES.map((frame, i) => (
-            <section className={s.frame} key={frame.name}>
-              <Plate asset={frame.asset} priority={i === 0} />
+            <section
+              className={s.frame}
+              key={frame.name}
+              style={
+                {
+                  // фактические пропорции присланных файлов, не номинальные:
+                  // по ним CSS строит прямоугольник, который занимает кадр
+                  // после object-fit: cover
+                  '--ar': пропорция(frame.wide),
+                  '--ar-mob': пропорция(frame.tall),
+                } as React.CSSProperties
+              }
+            >
+              <Plate asset={frame.wide} mobile={frame.tall} priority={i === 0} />
+
+              {/* система координат самого снимка — маркер живёт в ней */}
+              <div className={s.stage}>
+                <Marker
+                  индекс={i}
+                  цифра={ЦИФРЫ[i]}
+                  x={МАРКЕРЫ[i].wide.x}
+                  y={МАРКЕРЫ[i].wide.y}
+                  xМоб={МАРКЕРЫ[i].tall.x}
+                  yМоб={МАРКЕРЫ[i].tall.y}
+                />
+              </div>
+
               <span className={s.capIndex}>
                 КАДР {['ПЕРВЫЙ', 'ВТОРОЙ', 'ТРЕТИЙ', 'ЧЕТВЁРТЫЙ'][i]}
               </span>
-              {frame.asset.todo && <span className={s.todo}>КАДР В РАБОТЕ</span>}
               <div className={s.cap}>
                 <span className={s.capName} data-letters>
                   {frame.name}

@@ -1,0 +1,28 @@
+/* Четыре кружка в правом нижнем углу, 32 px от краёв. Служебный слой:
+   ничего не ловит и никогда не мешает содержимому. */
+.progress {
+  position: fixed;
+  right: 32px;
+  bottom: 32px;
+  z-index: 45;
+  display: flex;
+  gap: 8px;
+  pointer-events: none;
+  visibility: hidden;
+  opacity: 0;
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  transition:
+    background-color 0.45s var(--ease-out-quint),
+    border-color 0.45s var(--ease-out-quint);
+}
+
+.on {
+  background: var(--color-crimson);
+  border-color: var(--color-crimson);
+}

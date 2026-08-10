@@ -13,7 +13,7 @@ import s from "./Home.module.css";
 const MANIFEST = [
   "Одна ночь. Один зал.",
   "Двести человек.",
-  "Ни одной фотографии.",
+  "Каждый нашёл дорогу сам.",
 ];
 
 const SLOTS = [
@@ -167,7 +167,7 @@ export default function HomeFlow() {
               Вальмонт, верхний зал
             </p>
             <AppLink className={s.finalCta} href="/zapis" data-reveal-fade>
-              Приглашение
+              Замок
               <svg viewBox="0 0 15 15" fill="none" aria-hidden="true">
                 <path
                   d="M4.4 10.6 10.6 4.4M5.6 4.4h5v5"

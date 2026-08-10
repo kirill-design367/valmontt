@@ -1,0 +1,79 @@
+/* Маркер стоит в системе координат САМОГО СНИМКА: родитель воспроизводит
+   прямоугольник, который занимает кадр после object-fit: cover, поэтому
+   проценты здесь — доли снимка, а не рамки. */
+.marker {
+  position: absolute;
+  left: calc(var(--x) * 100%);
+  top: calc(var(--y) * 100%);
+  z-index: 4;
+  width: 64px;
+  height: 64px;
+  margin: -32px 0 0 -32px;
+  display: grid;
+  place-items: center;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  pointer-events: auto;
+  /* курсор на снимке, палец на телефоне: цель должна быть крупнее рисунка */
+  touch-action: manipulation;
+}
+
+.marker:focus-visible {
+  outline: 1px solid var(--color-bone);
+  outline-offset: 6px;
+  border-radius: 50%;
+}
+
+/* Окружность нарисована в раскрытом размере и поджата масштабом: рост
+   считает композитор, ширина элемента не меняется ни на кадр. */
+.ring {
+  grid-area: 1 / 1;
+  width: 64px;
+  height: 64px;
+  border: 1px solid var(--color-bone);
+  border-radius: 50%;
+  opacity: 0.4;
+  transform: scale(0.6875);
+  will-change: transform;
+  transition: opacity 0.4s var(--ease-out-quint), border-color 0.4s var(--ease-out-quint);
+}
+
+.found .ring {
+  opacity: 1;
+  border-color: var(--color-crimson);
+}
+
+.dot {
+  grid-area: 1 / 1;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--color-bone);
+  opacity: 0.75;
+}
+
+/* Цифра живёт внутри окружности 64 px — кегль взят на ступень мельче
+   заголовочного, иначе литера вылезает за кольцо и метка теряет форму. */
+.digit {
+  grid-area: 1 / 1;
+  font-family: var(--font-display);
+  font-size: var(--t3);
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: var(--track-tight);
+  color: var(--color-bone);
+  visibility: hidden;
+  opacity: 0;
+  will-change: transform, opacity;
+  user-select: none;
+}
+
+@media (max-width: 767px) {
+  /* на телефоне показан вертикальный снимок — у него своя тёмная зона */
+  .marker {
+    left: calc(var(--xm) * 100%);
+    top: calc(var(--ym) * 100%);
+  }
+}
