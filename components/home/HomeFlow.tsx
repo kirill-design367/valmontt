@@ -7,6 +7,7 @@ import Porog from "./Porog";
 import { FULL } from "@/lib/reveal";
 import AppLink from "../AppLink";
 import { useReveal } from "@/lib/reveal";
+import { useLetterAssembly } from "@/lib/letters";
 import { ASSETS, type Asset } from "@/lib/assets";
 import Plate from "../Plate";
 import s from "./Home.module.css";
@@ -38,6 +39,7 @@ export default function HomeFlow() {
   const root = useRef<HTMLDivElement>(null);
   const finalWrap = useRef<HTMLDivElement>(null);
   useReveal(root, { stagger: 0.08 });
+  useLetterAssembly(root);
 
   /* Схлопывание блока с датой. Привязано к скроллу, а не к таймеру:
      скоростью управляет пользователь. */
@@ -91,8 +93,8 @@ export default function HomeFlow() {
       {/* ---------- Манифест ---------- */}
       <section className={`${s.section} ${s.manifest}`} data-reveal-group>
         {MANIFEST.map((phrase) => (
-          <span className={s.line} key={phrase}>
-            <span data-reveal>{phrase}</span>
+          <span className={`${s.line} ${s.free}`} key={phrase}>
+            <span data-letters>{phrase}</span>
           </span>
         ))}
       </section>
@@ -113,7 +115,9 @@ export default function HomeFlow() {
               key={slot.time}
               data-reveal-fade
             >
-              <span className={s.slotTime}>{slot.time}</span>
+              <span className={s.slotTime} data-letters>
+                {slot.time}
+              </span>
               <span className={s.slotName}>{slot.name}</span>
             </AppLink>
           ))}
@@ -154,8 +158,8 @@ export default function HomeFlow() {
           <div className={s.finalInner} data-collapse-body>
             <div className={s.finalDate}>
               {FINAL_DATE.map((d) => (
-                <span className={s.line} key={d}>
-                  <span data-reveal>{d}</span>
+                <span className={`${s.line} ${s.free}`} key={d}>
+                  <span data-letters>{d}</span>
                 </span>
               ))}
             </div>

@@ -22,16 +22,16 @@ const FACTS = [
 /**
  * Оптический прибор на глазу грифона.
  *
- * Стекло, а не молочная плёнка: сквозь рамку видно ту же подложку, что за ней,
- * только размытую. Размытие НЕ считается в браузере — оно испечено в отдельный
- * файл (scripts/make-glass.py) и подставлено картинкой, выровненной ровно по
- * тому месту кадра, которое рамка закрывает. Живого `backdrop-filter` здесь
- * больше нет: замер показал на нём −10 кадров, потому что под линзой всё время
- * едет параллакс и подложка пересчитывалась в каждом кадре.
+ * Чистое стекло, положенное на кадр: сквозь рамку отчётливо читается тот же
+ * глаз, что за ней, только чуть смягчённый. Размягчение НЕ считается в
+ * браузере — оно испечено в отдельный файл (scripts/make-glass.py) и
+ * подставлено картинкой, выровненной ровно по тому месту кадра, которое рамка
+ * закрывает. Живого `backdrop-filter` здесь нет: замер показал на нём
+ * −10 кадров, потому что под линзой всё время едет параллакс.
  *
- * Белого в стекле 6 %, остальное — холодная плёнка и блик по кромке.
- * Наведение по-прежнему гасит слои перекрёстно прозрачностью; таймлайн,
- * длительности и кривые не изменились ни в одном кадре.
+ * Белого в стекле 3 %, холодная плёнка на грани заметности, блик — волосяная
+ * линия в левом верхнем углу. Рамка неподвижна: ни масштаба по наведению, ни
+ * цикла дыхания. Движение — только прозрачность и подписи.
  */
 export default function Lens() {
   const root = useRef<HTMLDivElement>(null)
@@ -48,25 +48,22 @@ export default function Lens() {
     const t = gsap.timeline({ paused: true })
     if (reduce) {
       // без движения: состояние переключается мгновенно
-      t.set(el, { scale: 1.03 }, 0)
-        .set(q('[data-frost-edge]'), { autoAlpha: 1 }, 0)
+      t.set(q('[data-frost-edge]'), { autoAlpha: 1 }, 0)
         .set(q('[data-frost-blur]'), { autoAlpha: 1 }, 0)
         .set(q('[data-rest]'), { autoAlpha: 0 }, 0)
         .set(q('[data-rest-ghost]'), { autoAlpha: 0 }, 0)
         .set(q('[data-fact]'), { autoAlpha: 1, yPercent: 0 }, 0)
     } else {
       t
-        // прибор подаётся вперёд
-        .to(el, { scale: 1.03, duration: 0.5, ease: 'power3.out' }, 0)
-        // иней нарастает от краёв к центру: сперва опушка, следом подложка
-        .to(q('[data-frost-edge]'), { autoAlpha: 1, duration: 0.28, ease: 'power2.out' }, 0)
-        .to(q('[data-frost-blur]'), { autoAlpha: 1, duration: 0.5, ease: 'power2.out' }, 0.08)
+        // стекло ложится на кадр: кромка первой, следом подложка
+        .to(q('[data-frost-edge]'), { autoAlpha: 1, duration: 0.16, ease: 'power2.out' }, 0)
+        .to(q('[data-frost-blur]'), { autoAlpha: 1, duration: 0.2, ease: 'power2.out' }, 0.03)
         // исходные строки уходят вверх, размытый дубль подхватывает их в пути
-        .to(q('[data-rest]'), { yPercent: -115, autoAlpha: 0, duration: 0.35, ease: 'power3.in' }, 0)
+        .to(q('[data-rest]'), { yPercent: -115, autoAlpha: 0, duration: 0.18, ease: 'power3.in' }, 0)
         .fromTo(
           q('[data-rest-ghost]'),
           { yPercent: 0, autoAlpha: 0 },
-          { yPercent: -115, autoAlpha: 0.6, duration: 0.35, ease: 'power3.in' },
+          { yPercent: -115, autoAlpha: 0.6, duration: 0.18, ease: 'power3.in' },
           0,
         )
         .set(q('[data-rest-ghost]'), { autoAlpha: 0 })
@@ -74,8 +71,8 @@ export default function Lens() {
         .fromTo(
           q('[data-fact]'),
           { yPercent: 118, autoAlpha: 0 },
-          { yPercent: 0, autoAlpha: 1, duration: 0.5, stagger: 0.08, ease: 'power3.out' },
-          0.22,
+          { yPercent: 0, autoAlpha: 1, duration: 0.25, stagger: 0.04, ease: 'power3.out' },
+          0.12,
         )
     }
     tl.current = t
@@ -89,9 +86,9 @@ export default function Lens() {
   useEffect(() => {
     const t = tl.current
     if (!t) return
-    // таяние от центра к краям — обратный ход, но быстрее
+    // обратный ход быстрее прямого: стекло уходит за 0.15 против 0.2
     if (open) t.timeScale(1).play()
-    else t.timeScale(1.25).reverse()
+    else t.timeScale(1.33).reverse()
   }, [open])
 
   return (

@@ -5,20 +5,20 @@
 
 .lede {
   max-width: var(--measure);
-  margin-top: 1.6rem;
-  font-size: 13px;
+  margin-top: calc(var(--step) * 4);
+  font-size: var(--t4);
   font-weight: 300;
-  line-height: 1.7;
+  line-height: var(--lh-text);
   color: var(--text-dim);
 }
 
 /* Билет: тонкая рамка, ничего лишнего. Внутри либо форма, либо номер. */
 .ticket {
   position: relative;
-  margin-top: clamp(3rem, 7vh, 5rem);
+  margin-top: calc(var(--step) * 8);
   border: 1px solid var(--hairline-soft);
   border-radius: 26px;
-  padding: clamp(1.75rem, 4vw, 3rem);
+  padding: calc(var(--step) * 5);
   min-height: 26rem;
   display: flex;
   flex-direction: column;
@@ -56,12 +56,13 @@
 
 .label {
   display: block;
-  font-size: 10px;
+  font-size: var(--t5);
   font-weight: 300;
-  letter-spacing: 0.28em;
+  letter-spacing: var(--track-wide);
+  line-height: var(--lh-text);
   text-transform: uppercase;
   color: rgba(255, 255, 255, 0.55);
-  margin-bottom: 0.7rem;
+  margin-bottom: var(--step);
 }
 
 .input {
@@ -69,9 +70,9 @@
   background: none;
   border: 0;
   border-bottom: 1px solid rgba(255, 255, 255, 0.22);
-  padding: 0.55rem 0;
+  padding: var(--step) 0;
   font-family: inherit;
-  font-size: clamp(1.05rem, 1.8vw, 1.35rem);
+  font-size: var(--t3);
   font-weight: 400;
   color: var(--color-bone);
   transition: border-color 0.5s var(--ease-out-quint);
@@ -119,7 +120,7 @@
   background: var(--color-bone);
   color: #050507;
   font-family: inherit;
-  font-size: 13px;
+  font-size: var(--t4);
   font-weight: 500;
   cursor: pointer;
   transition: transform 0.5s var(--ease-out-quint);
@@ -139,20 +140,21 @@
  * ------------------------------------------------------------------ */
 .done {
   position: absolute;
-  inset: clamp(1.75rem, 4vw, 3rem);
+  inset: calc(var(--step) * 5);
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: flex-start;
-  gap: 1.1rem;
+  gap: calc(var(--step) * 2);
   opacity: 0;
   visibility: hidden;
 }
 
 .doneLabel {
-  font-size: 10px;
+  font-size: var(--t5);
   font-weight: 300;
-  letter-spacing: 0.28em;
+  letter-spacing: var(--track-wide);
+  line-height: var(--lh-text);
   text-transform: uppercase;
   color: rgba(255, 255, 255, 0.55);
 }
@@ -161,9 +163,9 @@
   display: flex;
   font-family: var(--font-display);
   gap: 0.06em;
-  font-size: clamp(2rem, 5.4vw, 3.8rem);
+  font-size: var(--t2);
   font-weight: 400;
-  letter-spacing: 0.02em;
+  letter-spacing: var(--track-tight);
   font-variant-numeric: tabular-nums;
   line-height: 1;
 }
@@ -174,21 +176,22 @@
 }
 
 .donePromise {
-  font-size: 13px;
+  font-size: var(--t4);
   font-weight: 300;
+  line-height: var(--lh-text);
   color: var(--text-dim);
 }
 
 /* Вертикальная подпись на билете — фирменный приём страницы */
 .stamp {
   position: absolute;
-  top: clamp(1.75rem, 4vw, 3rem);
-  right: clamp(1.75rem, 4vw, 3rem);
+  top: calc(var(--step) * 5);
+  right: calc(var(--step) * 5);
   writing-mode: vertical-rl;
   text-orientation: mixed;
-  font-size: 11px;
+  font-size: var(--t5);
   font-weight: 300;
-  letter-spacing: 0.3em;
+  letter-spacing: var(--track-wide);
   color: rgba(255, 255, 255, 0.32);
   pointer-events: none;
 }

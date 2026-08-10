@@ -49,10 +49,10 @@
   transform: translateY(-50%);
   writing-mode: vertical-rl;
   text-orientation: mixed;
-  font-size: clamp(2.2rem, 8.2dvh, 5.6rem);
+  font-size: var(--v-poster);
   font-weight: 400;
   line-height: 1;
-  letter-spacing: 0.16em;
+  letter-spacing: var(--track-vert);
   color: var(--color-bone);
   white-space: nowrap;
   user-select: none;
@@ -68,7 +68,7 @@
 
 .caption {
   position: absolute;
-  bottom: clamp(2.5rem, 8vh, 5rem);
+  bottom: calc(var(--step) * 8);
   z-index: 3;
   max-width: min(30rem, 62vw);
 }
@@ -84,28 +84,30 @@
 
 .what {
   display: block;
-  font-size: clamp(1rem, 1.6vw, 1.35rem);
+  font-size: var(--t3);
   font-weight: 500;
-  line-height: 1.4;
+  line-height: var(--lh-snug);
+  letter-spacing: var(--track-tight);
 }
 
 .when {
   display: block;
-  margin-top: 0.6rem;
-  font-size: 12px;
+  margin-top: var(--step);
+  font-size: var(--t5);
   font-weight: 300;
-  letter-spacing: 0.22em;
+  line-height: var(--lh-text);
+  letter-spacing: var(--track-wide);
   text-transform: uppercase;
   color: var(--text-dim);
 }
 
 .todo {
   position: absolute;
-  top: calc(var(--nav-h) + 0.75rem);
+  top: calc(var(--nav-h) + var(--step) * 2);
   z-index: 3;
-  font-size: 9px;
+  font-size: var(--t5);
   font-weight: 300;
-  letter-spacing: 0.24em;
+  letter-spacing: var(--track-wide);
   color: rgba(255, 255, 255, 0.5);
   border: 1px solid rgba(255, 255, 255, 0.22);
   border-radius: 999px;
@@ -124,9 +126,8 @@
   /* На телефоне имя уводим наверх, а подпись кладём на всю ширину внизу —
      сбоку они не разойдутся. */
   .name {
-    top: calc(var(--nav-h) + 1rem);
+    top: calc(var(--nav-h) + var(--step) * 2);
     transform: none;
-    font-size: clamp(1.7rem, 5.6dvh, 2.6rem);
   }
 
   .left .name,
@@ -141,7 +142,7 @@
     right: var(--gutter);
     max-width: none;
     text-align: left;
-    bottom: 2.5rem;
+    bottom: calc(var(--step) * 5);
   }
 
   .left .todo,

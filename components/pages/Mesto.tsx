@@ -5,6 +5,7 @@ import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import PageShell from '../PageShell'
 import { FULL } from '@/lib/reveal'
+import { assembleLetters } from '@/lib/letters'
 import { ASSETS, type Asset } from '@/lib/assets'
 import Plate from '../Plate'
 import s from './Mesto.module.css'
@@ -28,38 +29,74 @@ export default function Mesto() {
     const track = rail.current
     if (!box || !track) return
 
-    const ctx = gsap.context(() => {
-      const mm = gsap.matchMedia()
+    let ctx: gsap.Context | undefined
+    let отменено = false
 
-      // горизонтальный проезд только там, где есть чем крутить
-      mm.add(`${FULL} and (min-width: 768px)`, () => {
-        const distance = () => track.scrollWidth - window.innerWidth
+    // SplitText режет по текущим метрикам — ждём подмену шрифта
+    document.fonts.ready.then(() => {
+      if (отменено) return
 
-        gsap.to(track, {
-          x: () => -distance(),
-          ease: 'none',
-          scrollTrigger: {
-            trigger: box,
-            start: 'top top',
-            end: () => '+=' + distance(),
-            pin: true,
-            scrub: 0.6,
-            invalidateOnRefresh: true,
-            anticipatePin: 1,
-          },
+      ctx = gsap.context(() => {
+        const mm = gsap.matchMedia()
+
+        // горизонтальный проезд только там, где есть чем крутить
+        mm.add(`${FULL} and (min-width: 768px)`, () => {
+          const distance = () => track.scrollWidth - window.innerWidth
+
+          const лента = gsap.to(track, {
+            x: () => -distance(),
+            ease: 'none',
+            scrollTrigger: {
+              trigger: box,
+              start: 'top top',
+              end: () => '+=' + distance(),
+              pin: true,
+              scrub: 0.6,
+              invalidateOnRefresh: true,
+              anticipatePin: 1,
+            },
+          })
+
+          if (hint.current) {
+            gsap.to(hint.current, {
+              opacity: 0,
+              ease: 'none',
+              scrollTrigger: { trigger: box, start: 'top top', end: '+=220', scrub: true },
+            })
+          }
+
+          /* Имена кадров собираются не по вертикальному скроллу, а по
+             положению самого кадра в ленте: старт и финиш считаются от
+             левого края через containerAnimation. */
+          const откаты = gsap.utils
+            .toArray<HTMLElement>('[data-letters]')
+            .map((el, i) =>
+              assembleLetters(el, {
+                seed: i * 977 + 13,
+                containerAnimation: лента,
+                start: 'left 84%',
+                end: 'left 34%',
+              }),
+            )
+          return () => откаты.forEach((f) => f())
         })
 
-        if (hint.current) {
-          gsap.to(hint.current, {
-            opacity: 0,
-            ease: 'none',
-            scrollTrigger: { trigger: box, start: 'top top', end: '+=220', scrub: true },
-          })
-        }
-      })
-    }, box)
+        // на телефоне кадры идут обычной вертикальной лентой
+        mm.add(`${FULL} and (max-width: 767px)`, () => {
+          const откаты = gsap.utils
+            .toArray<HTMLElement>('[data-letters]')
+            .map((el, i) => assembleLetters(el, { seed: i * 977 + 13 }))
+          return () => откаты.forEach((f) => f())
+        })
+      }, box)
 
-    return () => ctx.revert()
+      ScrollTrigger.refresh()
+    })
+
+    return () => {
+      отменено = true
+      ctx?.revert()
+    }
   }, [])
 
   return (
@@ -74,7 +111,9 @@ export default function Mesto() {
               </span>
               {frame.asset.todo && <span className={s.todo}>КАДР В РАБОТЕ</span>}
               <div className={s.cap}>
-                <span className={s.capName}>{frame.name}</span>
+                <span className={s.capName} data-letters>
+                  {frame.name}
+                </span>
                 <span className={s.capNote}>{frame.note}</span>
               </div>
             </section>

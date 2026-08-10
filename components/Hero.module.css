@@ -160,19 +160,19 @@
   position: relative;
 }
 
-/* Ореол убавлен на треть (0.85 → 0.57 и 0.62 → 0.42): свечение перестало
-   резать глаз и читается мягким гало, а не подсветкой из-под литер.
+/* Ореол убавлен ещё вдвое (0.57 → 0.285 и 0.42 → 0.21): свечение осталось
+   на грани заметности — литеры чуть отделены от кадра, подсветки нет.
    Те же числа продублированы в lib/motion.ts — таймлайн гонит прозрачность
    именно в них. */
 .bloomNear {
   filter: blur(14px);
-  opacity: 0.57;
+  opacity: 0.285;
 }
 
 /* без собственного transform — его анимирует GSAP */
 .bloomFar {
   filter: blur(54px);
-  opacity: 0.42;
+  opacity: 0.21;
 }
 
 /* ------------------------------------------------------------------ *
@@ -214,9 +214,10 @@
 .navLinks a {
   position: relative;
   display: block;
-  font-size: 11px;
+  font-size: var(--t5);
   font-weight: 300;
-  letter-spacing: 0.28em;
+  letter-spacing: var(--track-wide);
+  line-height: var(--lh-text);
   color: var(--color-bone);
   text-decoration: none;
   white-space: nowrap;
@@ -234,7 +235,7 @@
   left: 0;
   /* трекинг оставляет хвост пустоты справа от последней литеры —
      подчёркивание обрезаем ровно на него, иначе линия длиннее слова */
-  right: 0.28em;
+  right: var(--track-wide);
   bottom: -0.55em;
   height: 1px;
   background: var(--color-bone);
@@ -254,12 +255,14 @@
   transform-origin: 0 50%;
 }
 
-/* --- Заголовок --- */
+/* --- Заголовок ---
+   Две строки горизонтального набора. Ширина блока держит его в левой половине
+   кадра, а до вордмарка остаётся не меньше 15 % ширины экрана. */
 .headline {
   position: absolute;
   left: var(--gutter);
   top: 40%;
-  width: min(34vw, 30rem);
+  width: min(46vw, 62rem);
 }
 
 /* Маска строки. Запас снизу — чтобы запятая в «НОЧЬ,» не срезалась
@@ -274,25 +277,27 @@
   display: block;
   font-family: var(--font-display);
   padding-bottom: 0.17em;
-  font-size: clamp(2.6rem, 3.4vw, 5rem);
+  font-size: var(--t1);
   font-weight: 400;
-  line-height: 0.95;
-  letter-spacing: -0.015em;
+  line-height: var(--lh-tight);
+  letter-spacing: var(--track-tight);
   text-transform: uppercase;
+  white-space: nowrap;
   will-change: transform;
 }
 
 .lede {
   display: flex;
   align-items: flex-start;
-  gap: clamp(1.5rem, 2.6vw, 2.75rem);
-  margin-top: 1.9rem;
+  /* горизонтальный просвет — не часть вертикального ритма */
+  column-gap: clamp(1.5rem, 2.6vw, 2.75rem);
+  margin-top: calc(var(--step) * 4);
 }
 
 .ledeText {
-  font-size: 13px;
+  font-size: var(--t4);
   font-weight: 300;
-  line-height: 1.55;
+  line-height: var(--lh-text);
   color: var(--text-dim);
 }
 
@@ -317,9 +322,9 @@
   background: var(--color-bone);
   color: #050507;
   font-family: inherit;
-  font-size: 13px;
+  font-size: var(--t4);
   font-weight: 500;
-  letter-spacing: 0.01em;
+  letter-spacing: var(--track-flat);
   cursor: pointer;
   will-change: transform;
 }
@@ -359,43 +364,16 @@
   transform: translate(-50%, -30%);
 }
 
-.lens {
-  width: clamp(15rem, 16.2vw, 21rem);
-  height: clamp(20rem, 22vw, 28rem);
-  border: 1px solid var(--hairline);
-  border-radius: 30px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  padding: 1.15rem 1.35rem 1.4rem;
-  will-change: transform;
-}
-
-.lensArrow {
-  align-self: flex-end;
-  width: 17px;
-  height: 17px;
-  color: var(--color-bone);
-}
-
-.lensCaption {
-  font-size: 15px;
-  font-weight: 400;
-  line-height: 1.32;
-  letter-spacing: 0.02em;
-  text-transform: uppercase;
-}
-
 /* ------------------------------------------------------------------ *
  * Мобильная композиция — отдельный кадр, а не сжатый десктоп
  * ------------------------------------------------------------------ */
 @media (max-width: 767px) {
   .hero {
-    /* те же пропорции, что на десктопе: литеры выше (9.6 → 11dvh), трекинг
-       поджат, столбец вырос до ~109 % высоты — срез сверху и снизу вдвое
-       глубже. Отступ справа с 1.15 до 0.75rem: столбец прижат к краю. */
+    /* та же формула, что на десктопе: шаг = 13.514dvh, столбец = 108.1 %,
+       срез = 0.3 шага сверху и снизу. Кегль ниже, поэтому трекинг шире:
+       значение выведено замером. */
     --wordmark-size: 11dvh;
-    --wordmark-track: 0.4em;
+    --wordmark-track: 0.407em;
     --wordmark-right: 0.75rem;
     --gutter: 1.35rem;
     --nav-h: 3.75rem;
@@ -436,21 +414,16 @@
     width: min(74vw, 20rem);
   }
 
-  .line > span {
-    font-size: clamp(2.25rem, 10.5vw, 2.75rem);
-  }
-
   .lede {
     flex-direction: column;
     align-items: flex-start;
-    gap: 1.5rem;
-    margin-top: 1.4rem;
+    gap: calc(var(--step) * 3);
+    margin-top: calc(var(--step) * 3);
   }
 
   /* На 390 px вторая строка не помещается рядом с вордмарком — здесь
      перенос отдаём браузеру, иначе текст уезжает под литеры. */
   .ledeText {
-    font-size: 12.5px;
     max-width: 60vw;
   }
 
@@ -465,22 +438,6 @@
     top: auto;
     bottom: 1.6rem;
     transform: none;
-  }
-
-  .lens {
-    width: 12.2rem;
-    height: 13.5rem;
-    border-radius: 20px;
-    padding: 0.8rem 0.9rem 1rem;
-  }
-
-  .lensCaption {
-    font-size: 12px;
-  }
-
-  .lensArrow {
-    width: 13px;
-    height: 13px;
   }
 }
 

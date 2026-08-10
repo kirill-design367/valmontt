@@ -55,6 +55,12 @@
   will-change: transform;
 }
 
+/* Строка без маски: буквы разлетаются за её пределы, и маска срезала бы
+   ровно то, ради чего эффект и делается. */
+.free {
+  overflow: visible;
+}
+
 /* ------------------------------------------------------------------ *
  * Манифест — только типографика, ни одного изображения
  * ------------------------------------------------------------------ */
@@ -66,15 +72,15 @@
 
 .manifest .line > span {
   font-family: var(--font-display);
-  font-size: clamp(1.85rem, 3.9vw, 4rem);
+  font-size: var(--t2);
   font-weight: 400;
-  line-height: 1.06;
-  letter-spacing: -0.02em;
+  line-height: var(--lh-tight);
+  letter-spacing: var(--track-tight);
   text-transform: uppercase;
 }
 
 .manifest .line + .line {
-  margin-top: 0.5em;
+  margin-top: calc(var(--step) * 4);
 }
 
 /* каждая следующая фраза чуть глубже в кадр — воздух работает как пауза */
@@ -92,8 +98,8 @@
 .slots {
   display: flex;
   flex-direction: column;
-  gap: clamp(2.25rem, 5vh, 4rem);
-  margin-top: clamp(3rem, 6vh, 5rem);
+  gap: calc(var(--step) * 6);
+  margin-top: calc(var(--step) * 8);
 }
 
 .slot {
@@ -102,25 +108,26 @@
   gap: clamp(1.5rem, 5vw, 5rem);
   text-decoration: none;
   color: var(--color-bone);
-  padding-bottom: 1.4rem;
+  padding-bottom: calc(var(--step) * 3);
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .slotTime {
   font-family: var(--font-display);
-  font-size: clamp(2.3rem, 5.4vw, 5rem);
+  font-size: var(--t2);
   font-weight: 400;
-  line-height: 0.9;
-  letter-spacing: -0.03em;
+  line-height: var(--lh-tight);
+  letter-spacing: var(--track-tight);
   font-variant-numeric: tabular-nums;
   flex: none;
   transition: color 0.45s var(--ease-out-quint);
 }
 
 .slotName {
-  font-size: clamp(0.95rem, 1.5vw, 1.35rem);
+  font-size: var(--t4);
   font-weight: 300;
-  letter-spacing: 0.02em;
+  line-height: var(--lh-text);
+  letter-spacing: var(--track-flat);
   color: rgba(255, 255, 255, 0.72);
   transition: transform 0.5s var(--ease-out-quint), color 0.45s var(--ease-out-quint);
 }
@@ -143,8 +150,8 @@
   display: grid;
   grid-auto-flow: column;
   grid-auto-columns: minmax(0, 1fr);
-  gap: clamp(0.75rem, 1.4vw, 1.5rem);
-  margin-top: clamp(3rem, 6vh, 5rem);
+  gap: calc(var(--step) * 2);
+  margin-top: calc(var(--step) * 8);
   text-decoration: none;
 }
 
@@ -187,9 +194,10 @@
   top: 0.9rem;
   writing-mode: vertical-rl;
   text-orientation: mixed;
-  font-size: clamp(1rem, 1.55vw, 1.45rem);
+  font-size: var(--t3);
   font-weight: 400;
-  letter-spacing: 0.14em;
+  line-height: 1;
+  letter-spacing: var(--track-vert);
   color: var(--color-bone);
 }
 
@@ -198,9 +206,9 @@
   z-index: 2;
   right: 0.7rem;
   bottom: 0.7rem;
-  font-size: 9px;
+  font-size: var(--t5);
   font-weight: 300;
-  letter-spacing: 0.24em;
+  letter-spacing: var(--track-wide);
   color: rgba(255, 255, 255, 0.45);
   border: 1px solid rgba(255, 255, 255, 0.22);
   border-radius: 999px;
@@ -248,18 +256,19 @@
 
 .finalDate .line > span {
   font-family: var(--font-display);
-  font-size: clamp(2.4rem, 5.8vw, 5.9rem);
+  font-size: var(--t1);
   font-weight: 400;
-  line-height: 0.92;
-  letter-spacing: -0.03em;
+  line-height: var(--lh-tight);
+  letter-spacing: var(--track-tight);
   text-transform: uppercase;
 }
 
 .finalPlace {
-  margin-top: 1.5rem;
-  font-size: 13px;
+  margin-top: calc(var(--step) * 3);
+  font-size: var(--t5);
   font-weight: 300;
-  letter-spacing: 0.24em;
+  line-height: var(--lh-text);
+  letter-spacing: var(--track-wide);
   color: var(--text-dim);
   text-transform: uppercase;
 }
@@ -268,12 +277,12 @@
   display: inline-flex;
   align-items: center;
   gap: 0.55rem;
-  margin-top: 2.75rem;
+  margin-top: calc(var(--step) * 6);
   padding: 0.85rem 1.1rem 0.85rem 1.5rem;
   border-radius: 999px;
   background: var(--color-bone);
   color: #050507;
-  font-size: 13px;
+  font-size: var(--t4);
   font-weight: 500;
   text-decoration: none;
   transition: transform 0.5s var(--ease-out-quint);
@@ -297,18 +306,10 @@
     padding-left: 0;
   }
 
-  .manifest .line > span {
-    font-size: clamp(1.45rem, 6.9vw, 2rem);
-  }
-
   .slot {
     flex-direction: column;
     align-items: flex-start;
-    gap: 0.5rem;
-  }
-
-  .slotTime {
-    font-size: clamp(2.1rem, 11.5vw, 3rem);
+    gap: var(--step);
   }
 
   /* лента бестиария едет вбок пальцем, а не жмётся в четыре колонки */

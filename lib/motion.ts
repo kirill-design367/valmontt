@@ -39,7 +39,6 @@ export function useHeroMotion(root: React.RefObject<HTMLElement | null>) {
 
     const q = <T extends Element = Element>(sel: string) =>
       Array.from(scope.querySelectorAll<T>(sel))
-    const one = (sel: string) => scope.querySelector(sel)
 
     const ctx = gsap.context(() => {
       const mm = gsap.matchMedia()
@@ -91,8 +90,8 @@ export function useHeroMotion(root: React.RefObject<HTMLElement | null>) {
             '[data-bloom]',
             { opacity: 0 },
             {
-              // убавлено на треть — см. .bloomNear/.bloomFar в Hero.module.css
-              opacity: (i, el: HTMLElement) => (el.dataset.bloom === 'far' ? 0.42 : 0.57),
+              // см. .bloomNear/.bloomFar в Hero.module.css
+              opacity: (i, el: HTMLElement) => (el.dataset.bloom === 'far' ? 0.21 : 0.285),
               duration: 1.4,
               stagger: 0.18,
               ease: 'power2.out',
@@ -131,18 +130,7 @@ export function useHeroMotion(root: React.RefObject<HTMLElement | null>) {
           new Promise((r) => setTimeout(r, 1500)),
         ]).then(() => tl.play())
 
-        /* рамка-линза еле заметно дышит, цикл 4 с */
-        const lens = one('[data-lens]')
-        if (lens) {
-          gsap.to(lens, {
-            scale: 1.016,
-            duration: 2,
-            repeat: -1,
-            yoyo: true,
-            ease: 'sine.inOut',
-            transformOrigin: '50% 50%',
-          })
-        }
+        /* Цикла дыхания у линзы нет: рамка стоит неподвижно всегда. */
 
         /* параллакс по курсору: фон ведёт, интерфейс отстаёт */
         const layers: Layer[] = [
@@ -191,7 +179,7 @@ export function useHeroMotion(root: React.RefObject<HTMLElement | null>) {
         gsap.set('[data-bg-image]', { scale: 1, opacity: 1 })
         gsap.set('[data-wordmark-slide]', { yPercent: 0 })
         gsap.set('[data-wordmark]', { opacity: 1 })
-        gsap.set('[data-bloom]', { opacity: (i, el: HTMLElement) => (el.dataset.bloom === 'far' ? 0.42 : 0.57) })
+        gsap.set('[data-bloom]', { opacity: (i, el: HTMLElement) => (el.dataset.bloom === 'far' ? 0.21 : 0.285) })
         gsap.set('[data-line]', { yPercent: 0 })
         gsap.set('[data-late]', { y: 0, opacity: 1 })
       })

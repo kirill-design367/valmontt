@@ -38,7 +38,7 @@
   position: absolute;
   left: clamp(1.5rem, 3vw, 3.5rem);
   right: clamp(1.5rem, 3vw, 3.5rem);
-  bottom: clamp(2.5rem, 7vh, 4.5rem);
+  bottom: calc(var(--step) * 7);
   z-index: 2;
   display: flex;
   align-items: baseline;
@@ -47,17 +47,18 @@
 
 .capName {
   font-family: var(--font-display);
-  font-size: clamp(1.25rem, 2.35vw, 2.25rem);
+  font-size: var(--t3);
   font-weight: 400;
-  letter-spacing: 0.04em;
+  line-height: var(--lh-snug);
+  letter-spacing: var(--track-tight);
   text-transform: uppercase;
   flex: none;
 }
 
 .capNote {
-  font-size: 13px;
+  font-size: var(--t4);
   font-weight: 300;
-  line-height: 1.6;
+  line-height: var(--lh-text);
   color: var(--text-dim);
   max-width: 24rem;
 }
@@ -65,25 +66,25 @@
 /* Номер кадра вертикально вдоль края — фирменный приём на этой странице */
 .capIndex {
   position: absolute;
-  top: calc(var(--nav-h) + 1.25rem);
+  top: calc(var(--nav-h) + var(--step) * 2);
   left: clamp(1.5rem, 3vw, 3.5rem);
   z-index: 2;
   writing-mode: vertical-rl;
   text-orientation: mixed;
-  font-size: 11px;
+  font-size: var(--t5);
   font-weight: 300;
-  letter-spacing: 0.3em;
+  letter-spacing: var(--track-wide);
   color: rgba(255, 255, 255, 0.5);
 }
 
 .todo {
   position: absolute;
-  top: calc(var(--nav-h) + 1.25rem);
+  top: calc(var(--nav-h) + var(--step) * 2);
   right: clamp(1.5rem, 3vw, 3.5rem);
   z-index: 2;
-  font-size: 9px;
+  font-size: var(--t5);
   font-weight: 300;
-  letter-spacing: 0.24em;
+  letter-spacing: var(--track-wide);
   color: rgba(255, 255, 255, 0.5);
   border: 1px solid rgba(255, 255, 255, 0.22);
   border-radius: 999px;
@@ -94,12 +95,12 @@
 .hint {
   position: fixed;
   left: 50%;
-  bottom: 1.5rem;
+  bottom: calc(var(--step) * 3);
   z-index: 20;
   transform: translateX(-50%);
-  font-size: 10px;
+  font-size: var(--t5);
   font-weight: 300;
-  letter-spacing: 0.3em;
+  letter-spacing: var(--track-wide);
   color: rgba(255, 255, 255, 0.5);
   pointer-events: none;
 }
@@ -131,12 +132,9 @@
     max-width: none;
   }
 
-  .capIndex {
-    top: 1.25rem;
-  }
-
+  .capIndex,
   .todo {
-    top: 1.25rem;
+    top: calc(var(--step) * 3);
   }
 
   .hint {

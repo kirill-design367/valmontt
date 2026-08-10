@@ -5,6 +5,7 @@ import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import PageShell from '../PageShell'
 import { FULL } from '@/lib/reveal'
+import { useLetterAssembly } from '@/lib/letters'
 import { ASSETS, type Asset } from '@/lib/assets'
 import Plate from '../Plate'
 import s from './Gosti.module.css'
@@ -40,6 +41,7 @@ const BEASTS: { name: string; what: string; when: string; asset: Asset }[] = [
 
 export default function Gosti() {
   const root = useRef<HTMLDivElement>(null)
+  useLetterAssembly(root, { start: 'top 86%', end: 'top 26%' })
 
   /* Смена с перекрытием: следующий блок наезжает поверх предыдущего,
      а предыдущий чуть проваливается вглубь — так стык не читается. */
@@ -88,6 +90,7 @@ export default function Gosti() {
             className={`${s.beast} ${i % 2 === 0 ? s.left : s.right}`}
             key={beast.name}
             data-beast
+            data-letters-trigger
             style={{ zIndex: i + 1 }}
           >
             <div className={s.sticky} data-sticky>
@@ -96,7 +99,9 @@ export default function Gosti() {
               </div>
               <div className={s.shade} />
 
-              <span className={s.name}>{beast.name}</span>
+              <span className={s.name} data-letters>
+                {beast.name}
+              </span>
 
               <div className={s.caption}>
                 <span className={s.what}>{beast.what}</span>

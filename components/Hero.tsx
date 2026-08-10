@@ -5,11 +5,13 @@ import { useStageAnchors } from '@/lib/stage'
 import { useHeroMotion, usePillHover } from '@/lib/motion'
 import AppLink from './AppLink'
 import Lens from './Lens'
+import Feathers from './Feathers'
 import { MENU } from '@/lib/routes'
 import { ASSETS, formats } from '@/lib/assets'
 import s from './Hero.module.css'
 
-const HEADLINE = ['НОЧЬ,', 'КОГДА', 'ГЕРБ', 'ОЖИВАЕТ']
+/** Две строки горизонтального набора; перенос задаём мы, а не ширина колонки. */
+const HEADLINE = ['НОЧЬ, КОГДА', 'ГЕРБ ОЖИВАЕТ']
 
 const desk = formats(ASSETS.heroDesktop)
 const mob = formats(ASSETS.heroMobile)
@@ -118,6 +120,9 @@ export default function Hero() {
           <Lens />
         </div>
       </div>
+
+      {/* шлейф перьев за курсором — только здесь и только с мышью */}
+      <Feathers />
     </main>
   )
 }

@@ -28,9 +28,10 @@
   display: inline-flex;
   align-items: center;
   gap: 0.6rem;
-  font-size: 11px;
+  font-size: var(--t5);
   font-weight: 300;
-  letter-spacing: 0.28em;
+  letter-spacing: var(--track-wide);
+  line-height: var(--lh-text);
   color: var(--color-bone);
   text-decoration: none;
   opacity: 0.85;
@@ -50,9 +51,10 @@
 .crumbs a {
   position: relative;
   display: block;
-  font-size: 11px;
+  font-size: var(--t5);
   font-weight: 300;
-  letter-spacing: 0.28em;
+  letter-spacing: var(--track-wide);
+  line-height: var(--lh-text);
   color: var(--color-bone);
   text-decoration: none;
   opacity: 0.45;
@@ -65,7 +67,7 @@
   content: '';
   position: absolute;
   left: 0;
-  right: 0.28em;
+  right: var(--track-wide);
   bottom: -0.55em;
   height: 1px;
   background: var(--color-bone);
@@ -97,9 +99,9 @@
   transform: translateY(-50%);
   writing-mode: vertical-rl;
   text-orientation: mixed;
-  font-size: clamp(2.2rem, 5.8dvh, 4rem);
+  font-size: var(--v-title);
   font-weight: 400;
-  letter-spacing: 0.22em;
+  letter-spacing: var(--track-vert);
   line-height: 1;
   color: rgba(255, 255, 255, 0.07);
   pointer-events: none;
@@ -125,7 +127,6 @@
   }
 
   .title {
-    font-size: clamp(2rem, 5.4dvh, 3rem);
     right: 0.5rem;
     color: rgba(255, 255, 255, 0.06);
   }

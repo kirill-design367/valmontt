@@ -8,12 +8,10 @@
   flex-direction: column;
   justify-content: space-between;
   padding: 1.15rem 1.35rem 1.4rem;
-  will-change: transform;
   cursor: pointer;
   pointer-events: auto;
   overflow: hidden;
   isolation: isolate;
-  transform-origin: center center;
 }
 
 .lens:focus-visible {
@@ -52,14 +50,10 @@
   background-image: var(--glass-desk);
   background-size: cover;
   background-position: center;
-  /* собственный слой композитора: дыхание рамки масштабирует уже готовую
-     текстуру, а не перерисовывает картинку в каждом кадре */
-  transform: translateZ(0);
-  backface-visibility: hidden;
 }
 
-/* Холодная плёнка поверх стекла. Белого ровно 6 % — выше стекло сразу
-   становится молочным; остальное даёт лёгкий синевато-серый подтон. */
+/* Холодная плёнка поверх стекла. Белого ровно 3 % — выше стекло начинает
+   мутнеть; подтон синевато-серый и почти на грани заметности. */
 .frost::after {
   content: '';
   position: absolute;
@@ -67,27 +61,27 @@
   background:
     linear-gradient(
       155deg,
-      rgba(198, 216, 236, 0.1) 0%,
-      rgba(164, 188, 214, 0.05) 55%,
-      rgba(140, 166, 198, 0.02) 100%
+      rgba(198, 216, 236, 0.045) 0%,
+      rgba(164, 188, 214, 0.018) 58%,
+      rgba(140, 166, 198, 0) 100%
     ),
-    rgba(255, 255, 255, 0.06);
+    rgba(255, 255, 255, 0.03);
 }
 
-/* Блик: отражение падает в левый верхний угол и сходит на нет к правому
-   нижнему — так ведёт себя настоящее стекло под источником сверху слева. */
+/* Блик собран в левый верхний угол и гаснет коротко: дальше по стеклу
+   отражения нет вовсе. */
 .frostEdge {
   background: radial-gradient(
-    120% 100% at 6% 2%,
-    rgba(255, 255, 255, 0.16) 0%,
-    rgba(255, 255, 255, 0.05) 30%,
-    rgba(255, 255, 255, 0) 58%
+    62% 52% at 3% 1%,
+    rgba(255, 255, 255, 0.13) 0%,
+    rgba(255, 255, 255, 0.03) 34%,
+    rgba(255, 255, 255, 0) 62%
   );
-  box-shadow: 0 0 26px rgba(200, 216, 236, 0.14);
 }
 
 /* Волосяная кромка того же блика. Градиент лежит в рамке толщиной в пиксель:
-   маска вырезает из него внутреннюю область, остаётся только сама линия. */
+   маска вырезает из него внутреннюю область, остаётся только сама линия.
+   Ярче прежнего у самого угла и короче — к трети рамки уже ничего нет. */
 .frostEdge::before {
   content: '';
   position: absolute;
@@ -95,11 +89,11 @@
   border-radius: inherit;
   padding: 1px;
   background: linear-gradient(
-    138deg,
-    rgba(255, 255, 255, 0.85) 0%,
-    rgba(255, 255, 255, 0.3) 26%,
-    rgba(255, 255, 255, 0.07) 52%,
-    rgba(255, 255, 255, 0) 74%
+    135deg,
+    rgba(255, 255, 255, 0.95) 0%,
+    rgba(255, 255, 255, 0.42) 11%,
+    rgba(255, 255, 255, 0.08) 25%,
+    rgba(255, 255, 255, 0) 36%
   );
   -webkit-mask:
     linear-gradient(#000 0 0) content-box,
@@ -147,10 +141,10 @@
 
 .row > span {
   display: block;
-  font-size: 15px;
+  font-size: var(--t4);
   font-weight: 400;
-  line-height: 1.32;
-  letter-spacing: 0.02em;
+  line-height: var(--lh-text);
+  letter-spacing: var(--track-flat);
   text-transform: uppercase;
   color: var(--color-bone);
   white-space: nowrap;
@@ -194,9 +188,6 @@
     top: calc(100% + 1.6rem - var(--viewport-h, 100vh) - 23px);
   }
 
-  .row > span {
-    font-size: 12px;
-  }
 
   .arrow {
     width: 13px;

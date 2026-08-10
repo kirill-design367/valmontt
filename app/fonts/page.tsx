@@ -4,92 +4,100 @@ import AppLink from '@/components/AppLink'
 import s from './fonts.module.css'
 
 export const metadata: Metadata = {
-  title: 'ВАЛЬМОНТ — Pilar Regular',
-  description: 'Стилистические наборы Pilar и сравнение заголовка hero.',
+  title: 'ВАЛЬМОНТ — заголовок обложки',
+  description: 'Два варианта набора заголовка и стилистические наборы Pilar.',
 }
 
 const plate = `${process.env.NEXT_PUBLIC_BASE_PATH ?? ''}/valmont-desktop.jpg`
-const HEADLINE = ['НОЧЬ,', 'КОГДА', 'ГЕРБ', 'ОЖИВАЕТ']
+
+const VARIANTS = [
+  {
+    id: 'dve',
+    title: 'А — две строки',
+    lines: ['НОЧЬ, КОГДА', 'ГЕРБ ОЖИВАЕТ'],
+    cls: 'head2' as const,
+    note: 'Кегль 5.3vw — 102 px на 1920. Блок держится в левой половине кадра, до вордмарка остаётся 41 % ширины.',
+    live: true,
+  },
+  {
+    id: 'odna',
+    title: 'Б — одна строка',
+    lines: ['НОЧЬ, КОГДА ГЕРБ ОЖИВАЕТ'],
+    cls: 'head1' as const,
+    note: 'Двадцать четыре широких знака в строку: кегль падает до 4.2vw — 80 px на 1920, и строка переходит в правую половину кадра. Зазор до вордмарка тот же — 15 %.',
+    live: false,
+  },
+]
 
 export default function FontsPage() {
   return (
     <div className={s.page}>
       <header className={s.head}>
-        <span className={s.eyebrow}>Гарнитура вордмарка</span>
-        <h1 className="t-page">Pilar Regular</h1>
+        <span className={s.eyebrow}>Обложка</span>
+        <h1 className="t-page">Заголовок — два набора</h1>
         <p className={s.intro}>
-          CSTM&nbsp;Fonts / type.today, версия 1.3. Подключён локальным файлом,
-          сабсет — кириллица, цифры и базовая пунктуация: 341&nbsp;КБ исходника
-          ужаты до 45. Состав глифов проверен по таблице cmap в самом бинарнике:
-          полный русский алфавит, включая Ё, Ъ, Ь, Щ и Ж, — не потеряно ничего.
-          Начертание в файле одно, поэтому вес везде 400, а массу набираем
-          кеглем и трекингом. Средний апрош слова ВАЛЬМОНТ — 0.839&nbsp;em
-          против 0.728 у Onest: на 15&nbsp;% шире, вся типографика пересчитана.
+          Один и тот же кадр, один и тот же вордмарк, одна и та же гарнитура —
+          Pilar&nbsp;Regular. Разница только в том, как разбита фраза. Вариант А
+          сейчас стоит на сайте.
         </p>
         <AppLink className={s.back} href="/">
           ← К обложке
         </AppLink>
       </header>
 
-      {/* --- стилистические наборы --- */}
-      <section className={s.cands}>
-        <h2 className="t-block">Стилистические наборы</h2>
-        <p className={s.intro}>
-          В файле их три — ss01, ss02, ss03. Слово набрано вертикально в финальном
-          кегле и обрезано краями кадра так же, как в бою.
-        </p>
-
-        <div className={s.candGrid}>
-          {STYLE_SETS.map((set) => (
-            <article key={set.id}>
-              <div className={s.candStage}>
-                <img src={plate} alt="" className={s.candPlate} loading="lazy" decoding="async" />
-                <span
-                  className={s.candWord}
-                  style={
-                    set.tag === '—'
-                      ? undefined
-                      : { fontFeatureSettings: `"${set.tag}" 1` }
-                  }
-                >
-                  ВАЛЬМОНТ
-                </span>
+      <section className={s.block}>
+        <h2 className="t-block">Как ложится в кадр</h2>
+        <div className={`${s.grid} ${s.two}`}>
+          {VARIANTS.map((v) => (
+            <article key={v.id}>
+              <div className={s.stage}>
+                <img src={plate} alt="" className={s.plate} loading="lazy" decoding="async" />
+                <span className={s.scrim} />
+                <h3 className={s[v.cls]}>
+                  {v.lines.map((l) => (
+                    <span key={l}>{l}</span>
+                  ))}
+                </h3>
+                <span className={s.word}>ВАЛЬМОНТ</span>
               </div>
-              <h3 className={s.candName}>{set.title}</h3>
-              <dl className={s.candFacts}>
-                <div>Фича: <b>{set.tag}</b></div>
-                <div>{set.note}</div>
+              <h3 className={s.caseName}>{v.title}</h3>
+              <dl className={s.caseFacts}>
+                <div>{v.note}</div>
+                <div>
+                  <b>{v.live ? 'Стоит на сайте' : 'Вариант на выбор'}</b>
+                </div>
               </dl>
             </article>
           ))}
         </div>
       </section>
 
-      {/* --- заголовок hero: Pilar против Onest --- */}
-      <section className={s.cands}>
-        <h2 className="t-block">Заголовок hero — два варианта</h2>
+      <section className={s.block}>
+        <h2 className="t-block">Стилистические наборы Pilar</h2>
         <p className={s.intro}>
-          Одна и та же композиция, один и тот же кегль. Слева Pilar (рабочий
-          вариант), справа Onest. Вордмарк на обоих кадрах — Pilar: он решён.
+          В файле их три — ss01, ss02, ss03. Слово набрано вертикально в финальном
+          кегле и обрезано краями кадра так же, как в бою.
         </p>
 
-        <div className={s.abGrid}>
-          {[
-            { id: 'pilar', label: 'Pilar Regular', f: 'var(--font-display-src)' },
-            { id: 'onest', label: 'Onest', f: 'var(--font-text-src)' },
-          ].map((v) => (
-            <article key={v.id}>
-              <div className={s.abStage}>
-                <img src={plate} alt="" className={s.candPlate} loading="lazy" decoding="async" />
-                <span className={s.abScrim} />
-                <h3 className={s.abHead} style={{ fontFamily: v.f }}>
-                  {HEADLINE.map((l) => (
-                    <span key={l}>{l}</span>
-                  ))}
-                </h3>
-                <span className={s.abWord}>ВАЛЬМОНТ</span>
+        <div className={`${s.grid} ${s.four}`}>
+          {STYLE_SETS.map((set) => (
+            <article key={set.id}>
+              <div className={`${s.stage} ${s.tall}`}>
+                <img src={plate} alt="" className={s.plate} loading="lazy" decoding="async" />
+                <span
+                  className={`${s.word} ${s.wordTall}`}
+                  style={set.tag === '—' ? undefined : { fontFeatureSettings: `"${set.tag}" 1` }}
+                >
+                  ВАЛЬМОНТ
+                </span>
               </div>
-              <h3 className={s.candName}>{v.label}</h3>
+              <h3 className={s.caseName}>{set.title}</h3>
+              <dl className={s.caseFacts}>
+                <div>
+                  Фича: <b>{set.tag}</b>
+                </div>
+                <div>{set.note}</div>
+              </dl>
             </article>
           ))}
         </div>

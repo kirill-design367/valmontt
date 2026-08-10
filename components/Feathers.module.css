@@ -1,0 +1,32 @@
+/* Поле частиц лежит поверх обложки и ничего не ловит. */
+.field {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+/* Перо — тот же острый клин, что в оперении на снимке: плоская заливка,
+   срезанная clip-path. Ни фильтров, ни теней — иначе каждая частица
+   заводила бы собственный проход растеризации. */
+.feather {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: block;
+  width: 12px;
+  height: 30px;
+  clip-path: polygon(50% 0%, 100% 34%, 62% 100%, 50% 78%, 38% 100%, 0% 34%);
+  transform-origin: 50% 30%;
+  visibility: hidden;
+  opacity: 0;
+  will-change: transform, opacity;
+}
+
+/* На сенсорных перья не заводятся вовсе — снимаем и разметку из композиции */
+@media (hover: none), (pointer: coarse), (prefers-reduced-motion: reduce) {
+  .field {
+    display: none;
+  }
+}

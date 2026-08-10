@@ -5,6 +5,7 @@ import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import PageShell from '../PageShell'
 import { FULL, REDUCE, useReveal } from '@/lib/reveal'
+import { useLetterAssembly } from '@/lib/letters'
 import s from './Programma.module.css'
 
 gsap.registerPlugin(ScrollTrigger)
@@ -26,6 +27,7 @@ export default function Programma() {
   const progress = useRef<HTMLSpanElement>(null)
 
   useReveal(root, { stagger: 0.06 })
+  useLetterAssembly(root)
 
   /* Индикатор привязан к прогрессу скролла по самой хронологии. */
   useEffect(() => {
@@ -80,8 +82,8 @@ export default function Programma() {
           <ol>
             {NIGHT.map((point) => (
               <li className={s.item} key={point.time} data-reveal-group>
-                <span className={s.mask}>
-                  <span className={s.time} data-reveal>
+                <span className={`${s.mask} ${s.free}`}>
+                  <span className={s.time} data-letters>
                     {point.time}
                   </span>
                 </span>
