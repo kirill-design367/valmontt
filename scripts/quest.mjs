@@ -257,8 +257,8 @@ for (const [tag, опции] of [['desktop', {}], ['mobile', { w: 390, h: 844, m
   await вМомент(850, 'v11-final-sborka-1')
   await вМомент(1200, 'v11-final-sborka-2')
   await вМомент(1600, 'v11-final-sborka-3')
-  // выход приходит через 1.2 с после того, как встала последняя литера
-  await p.waitForTimeout(4200)
+  // выход приходит через 1.2 с от начала сборки: считаем от ввода кода
+  await p.waitForTimeout(2600)
   await p.screenshot({ path: path.join(OUT, 'v12-final-s-knopkoy.png') })
 
   const финал = await p.evaluate(() => {
@@ -366,11 +366,20 @@ for (const [tag, опции] of [['desktop', {}], ['mobile', { w: 390, h: 844, m
   await p.screenshot({ path: path.join(OUT, 'v12-mesto-beam.png') })
 
   // пятно обязано ехать: два замера подряд дают разный сдвиг
+  // Пробег 2.2 с, между пробегами пауза 0.8 с. Мерить двумя точками нельзя:
+  // обе могут попасть в паузу. Смотрим размах за полный цикл.
   const едет = await p.evaluate(async () => {
-    const м = () => new DOMMatrixReadOnly(getComputedStyle(document.querySelector('[data-rail-spot]')).transform).m41
-    const a = м()
-    await new Promise((r) => setTimeout(r, 320))
-    return Math.abs(м() - a) > 10
+    const м = () =>
+      new DOMMatrixReadOnly(getComputedStyle(document.querySelector('[data-rail-spot]')).transform).m41
+    let мин = Infinity
+    let макс = -Infinity
+    for (let i = 0; i < 70; i++) {
+      const v = м()
+      мин = Math.min(мин, v)
+      макс = Math.max(макс, v)
+      await new Promise((r) => setTimeout(r, 50))
+    }
+    return макс - мин > innerWidth * 0.5
   })
   if (!едет) bad.push('индикатор: пятно стоит на месте')
 

@@ -16,7 +16,7 @@ const ROOT = path.resolve('out')
 const BASE = '/valmontt'
 const T = {
   '.html': 'text/html; charset=utf-8', '.js': 'text/javascript', '.css': 'text/css',
-  '.jpg': 'image/jpeg', '.avif': 'image/avif', '.webp': 'image/webp', '.woff2': 'font/woff2',
+  '.jpg': 'image/jpeg', '.avif': 'image/avif', '.webp': 'image/webp', '.woff2': 'font/woff2', '.txt': 'text/plain',
 }
 const srv = http.createServer((q, r) => {
   let p = decodeURIComponent(q.url.split('?')[0])

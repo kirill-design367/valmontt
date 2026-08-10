@@ -84,22 +84,17 @@ export default function Zamok() {
         if (!блок) return
         gsap.set(блок, { autoAlpha: 1 })
 
-        // когда встанет на место последняя литера последней строки
-        let собрался = 0
         блок.querySelectorAll<HTMLElement>('[data-final]').forEach((el, i) => {
-          const { tween } = assembleLettersInTime(el, {
-            seed: i * 977 + 41,
-            delay: мало ? 0 : 0.15 + i * 0.18,
-          })
-          if (tween) собрался = Math.max(собрался, tween.delay() + tween.totalDuration())
+          assembleLettersInTime(el, { seed: i * 977 + 41, delay: мало ? 0 : 0.15 + i * 0.18 })
         })
 
-        /* Выход приходит через 1.2 с ПОСЛЕ сборки, не вместе с ней: пока
-           кадр собирается, кнопка сбивала бы момент. */
+        /* Выход приходит через 1.2 с от НАЧАЛА сборки: на экране он
+           примерно на второй секунде после верного кода — сборка ещё идёт,
+           но момент уже прочитан. */
         gsap.to(выход.current, {
           autoAlpha: 1,
           duration: мало ? 0 : 0.5,
-          delay: мало ? 0 : собрался + 1.2,
+          delay: мало ? 0 : 1.2,
           ease: 'power2.out',
         })
       })
@@ -161,13 +156,18 @@ export default function Zamok() {
   const отказать = useCallback(() => {
     setОшибка(true)
     const мало = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    const очистить = () => {
-      setЦифры(Array(ПОЛЕЙ).fill(''))
-      поля.current[0]?.focus()
-    }
+    const очистить = () => setЦифры(Array(ПОЛЕЙ).fill(''))
+
+    /* Курсор возвращается в первое поле ТОЛЬКО когда поля снова видимы.
+       `autoAlpha: 0` — это ещё и `visibility: hidden`, а скрытый элемент
+       фокус не принимает: focus() внутри очистки молча не срабатывал,
+       курсор оставался в четвёртом поле, оттуда набор никуда не переходил
+       и код нельзя было ввести вообще. Отсюда «ввожу 1847 — ничего». */
+    const вернутьКурсор = () => поля.current[0]?.focus()
 
     if (мало) {
       очистить()
+      вернутьКурсор()
     } else {
       gsap
         .timeline()
@@ -175,7 +175,12 @@ export default function Zamok() {
         .to(ряд.current, { keyframes: { x: [-9, 8, -6, 5, -3, 0] }, duration: 0.3, ease: 'none' })
         .to(поля.current.filter(Boolean), { autoAlpha: 0, duration: 0.18, ease: 'power2.in' })
         .add(очистить)
-        .to(поля.current.filter(Boolean), { autoAlpha: 1, duration: 0.25, ease: 'power2.out' })
+        .to(поля.current.filter(Boolean), {
+          autoAlpha: 1,
+          duration: 0.25,
+          ease: 'power2.out',
+          onComplete: вернутьКурсор,
+        })
     }
 
     window.setTimeout(() => setОшибка(false), 2000)
