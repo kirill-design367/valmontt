@@ -121,6 +121,51 @@ console.log('\n── переходы, настоящими кликами ─�
   await c.close()
 }
 
+/* ------------------------------------------------- якоря карточек входа */
+console.log('\n── карточки входа ведут на своё правило ──')
+{
+  for (const [подпись, id] of [
+    ['ТЕЛЕФОНЫ', 'telefony'],
+    ['СЪЁМКА', 'syomka'],
+  ]) {
+    const c = await b.newContext({ viewport: { width: 1920, height: 1080 } })
+    const p = await c.newPage()
+    await p.goto(o + '/', { waitUntil: 'networkidle' })
+    await p.waitForTimeout(2600)
+
+    const карточка = p.locator(`a[href$="#${id}"]`).first()
+    for (let i = 0; i < 6; i++) {
+      await карточка.scrollIntoViewIfNeeded()
+      await p.waitForTimeout(500)
+    }
+    const box = await карточка.boundingBox()
+    if (!box) {
+      беда('высокая', `карточка «${подпись}» не нашлась на главной`)
+      await c.close()
+      continue
+    }
+    await p.mouse.click(box.x + box.width / 2, box.y + box.height / 2)
+    await p.waitForTimeout(3400)
+
+    const r = await p.evaluate((id) => {
+      const цель = document.getElementById(id)
+      return {
+        путь: location.pathname,
+        естьПравило: Boolean(цель),
+        // правило должно стоять в кадре, а не за экраном
+        вКадре: цель ? цель.getBoundingClientRect().top > -40 && цель.getBoundingClientRect().top < innerHeight * 0.6 : false,
+        сверху: цель ? Math.round(цель.getBoundingClientRect().top) : null,
+      }
+    }, id)
+    const ок = r.путь === BASE + '/gosti/' && r.естьПравило && r.вКадре
+    console.log(`  «${подпись}» → ${r.путь}, правило #${id} на ${r.сверху} px  ${ок ? '✓' : '✗'}`)
+    if (r.путь !== BASE + '/gosti/') беда('высокая', `карточка «${подпись}» привела на ${r.путь}`)
+    else if (!r.естьПравило) беда('высокая', `на /gosti нет правила #${id}`)
+    else if (!r.вКадре) беда('средняя', `карточка «${подпись}»: правило встало на ${r.сверху} px, не в кадре`)
+    await c.close()
+  }
+}
+
 /* --------------------------------------------------------------- вёрстка */
 console.log('\n── вёрстка ──')
 for (const [tag, viewport, моб] of [

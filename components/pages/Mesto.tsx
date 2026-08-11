@@ -4,8 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import PageShell from '../PageShell'
-import { FULL } from '@/lib/reveal'
-import { assembleLetters } from '@/lib/letters'
+import { FULL, fadeUp } from '@/lib/reveal'
 import { ASSETS, пропорция, type Asset } from '@/lib/assets'
 import { ЦИФРЫ } from '@/lib/quest'
 import Marker from '../Marker'
@@ -59,7 +58,7 @@ export default function Mesto() {
     let ctx: gsap.Context | undefined
     let отменено = false
 
-    // SplitText режет по текущим метрикам — ждём подмену шрифта
+    // проявления считают положение подписи — ждём подмену шрифта
     document.fonts.ready.then(() => {
       if (отменено) return
 
@@ -91,27 +90,21 @@ export default function Mesto() {
             },
           })
 
-          /* Имена кадров собираются не по вертикальному скроллу, а по
-             положению самого кадра в ленте: старт и финиш считаются от
-             левого края через containerAnimation. */
+          /* Подписи кадров больше не собираются из букв — по правке
+             клиента сборка оставлена только на шести блоках сайта. Здесь
+             простое проявление, привязанное к проезду ленты: кадр
+             приезжает вбок, а не по вертикальному скроллу. */
           const откаты = gsap.utils
-            .toArray<HTMLElement>('[data-letters]')
-            .map((el, i) =>
-              assembleLetters(el, {
-                seed: i * 977 + 13,
-                containerAnimation: лента,
-                start: 'left 84%',
-                end: 'left 34%',
-              }),
-            )
+            .toArray<HTMLElement>('[data-fade]')
+            .map((el) => fadeUp(el, { containerAnimation: лента, start: 'left 84%' }))
           return () => откаты.forEach((f) => f())
         })
 
         // на телефоне кадры идут обычной вертикальной лентой
         mm.add(`${FULL} and (max-width: 767px)`, () => {
           const откаты = gsap.utils
-            .toArray<HTMLElement>('[data-letters]')
-            .map((el, i) => assembleLetters(el, { seed: i * 977 + 13, индекс: i }))
+            .toArray<HTMLElement>('[data-fade]')
+            .map((el) => fadeUp(el))
           return () => откаты.forEach((f) => f())
         })
       }, box)
@@ -158,10 +151,12 @@ export default function Mesto() {
               </div>
 
               <div className={s.cap}>
-                <span className={s.capName} data-letters>
+                <span className={s.capName} data-fade>
                   {frame.name}
                 </span>
-                <span className={s.capNote}>{frame.note}</span>
+                <span className={s.capNote} data-fade>
+                  {frame.note}
+                </span>
               </div>
             </section>
           ))}

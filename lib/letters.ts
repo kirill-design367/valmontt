@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useLayoutEffect } from 'react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { SplitText } from 'gsap/SplitText'
@@ -22,8 +22,11 @@ gsap.registerPlugin(ScrollTrigger, SplitText)
  * В кадре только transform и opacity — ни одного фильтра.
  */
 
-const РАЗЛЁТ = 60 // px по каждой оси
-const ПОВОРОТ = 15 // градусов
+/* Разброс усилен по правке клиента: сборка осталась только на шести
+   блоках, зато бьёт заметно. Раньше было 60 px и 15°. */
+const РАЗЛЁТ = 180 // px по каждой оси
+const ПОВОРОТ = 45 // градусов
+const МАСШТАБ = 0.6 // литера приходит из глубины
 
 /* Окно сборки в долях высоты экрана: старт, когда верх блока на 88 %,
    финиш — на 42 %. Разница даёт длину пробега в пикселях прокрутки. */
@@ -100,9 +103,10 @@ export function assembleLetters(el: HTMLElement, opts: Опции = {}) {
     x: (i: number) => сдвиг(seed, i, 0) * РАЗЛЁТ,
     y: (i: number) => сдвиг(seed, i, 1) * РАЗЛЁТ,
     rotation: (i: number) => сдвиг(seed, i, 2) * ПОВОРОТ,
+    scale: МАСШТАБ,
     autoAlpha: 0,
   }
-  const сбор = { x: 0, y: 0, rotation: 0, autoAlpha: 1 }
+  const сбор = { x: 0, y: 0, rotation: 0, scale: 1, autoAlpha: 1 }
 
   /* Страница короче одного окна — прокручивать нечего, scrub невозможен.
      Собираем по времени при появлении, чтобы анимация всё-таки была: это
@@ -166,7 +170,7 @@ export function assembleLettersInTime(
   const мало = window.matchMedia(REDUCE).matches
 
   if (мало) {
-    gsap.set(split.chars, { x: 0, y: 0, rotation: 0, autoAlpha: 1 })
+    gsap.set(split.chars, { x: 0, y: 0, rotation: 0, scale: 1, autoAlpha: 1 })
     return { tween: null, revert: () => split.revert() }
   }
 
@@ -176,9 +180,10 @@ export function assembleLettersInTime(
       x: (i: number) => сдвиг(seed, i, 0) * РАЗЛЁТ,
       y: (i: number) => сдвиг(seed, i, 1) * РАЗЛЁТ,
       rotation: (i: number) => сдвиг(seed, i, 2) * ПОВОРОТ,
+      scale: МАСШТАБ,
       autoAlpha: 0,
     },
-    { x: 0, y: 0, rotation: 0, autoAlpha: 1, duration, stagger, delay, ease: 'power3.out' },
+    { x: 0, y: 0, rotation: 0, scale: 1, autoAlpha: 1, duration, stagger, delay, ease: 'power3.out' },
   )
 
   return { tween, revert: () => { tween.kill(); split.revert() } }
@@ -187,20 +192,39 @@ export function assembleLettersInTime(
 /**
  * Собирает все `[data-letters]` внутри области.
  *
- * Ждём `document.fonts.ready`: SplitText режет по текущим метрикам, и если
- * разрезать до подмены шрифта — литеры встанут по позициям запасной гарнитуры
- * и после подмены разъедутся.
+ * ПОЧЕМУ useLayoutEffect И ПОЧЕМУ БЛОК СНАЧАЛА ГАСНЕТ.
+ *
+ * SplitText режет по текущим метрикам, поэтому резать надо после подмены
+ * шрифта — а `document.fonts.ready` асинхронен. Если ничего не делать, идёт
+ * такая последовательность: браузер рисует собранный текст из SSR-разметки,
+ * потом приходят шрифты, текст режется, на литеры ложится разлетевшееся
+ * состояние — и на глазах у человека собранный блок разваливается. Именно
+ * это читается как «прыжок при первом скролле».
+ *
+ * Лечим так: ДО первой отрисовки (useLayoutEffect, синхронно) гасим сам
+ * блок целиком. Человек не видит собранного текста ни одного кадра. Когда
+ * шрифты готовы и литеры разрезаны и уже разбросаны, блок возвращаем —
+ * возвращать нечего, кроме уже правильного состояния покоя.
+ *
+ * В бережном режиме не гасим ничего: там текст просто стоит на месте.
  */
 export function useLetterAssembly(
   scope: React.RefObject<HTMLElement | null>,
   opts: Omit<Опции, 'seed'> = {},
 ) {
-  useEffect(() => {
+  useLayoutEffect(() => {
     const root = scope.current
     if (!root) return
 
+    const мало = window.matchMedia(REDUCE).matches
+    const блоки = Array.from(root.querySelectorAll<HTMLElement>('[data-letters]'))
+    // синхронно, в том же кадре: собранный текст не должен мелькнуть
+    if (!мало) gsap.set(блоки, { autoAlpha: 0 })
+
     let ctx: gsap.Context | undefined
     let отменено = false
+
+    const показать = () => gsap.set(блоки, { autoAlpha: 1 })
 
     document.fonts.ready.then(() => {
       if (отменено) return
@@ -214,11 +238,15 @@ export function useLetterAssembly(
           return () => откаты.forEach((f) => f())
         })
       }, root)
+
       ScrollTrigger.refresh()
+      // литеры уже разбросаны — открываем блок в состоянии покоя, не собранным
+      показать()
     })
 
     return () => {
       отменено = true
+      показать()
       ctx?.revert()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

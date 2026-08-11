@@ -8,6 +8,7 @@ import { FULL } from "@/lib/reveal";
 import AppLink from "../AppLink";
 import { useReveal } from "@/lib/reveal";
 import { useLetterAssembly } from "@/lib/letters";
+import { useEntryHover } from "@/lib/motion";
 import s from "./Home.module.css";
 
 const MANIFEST = [
@@ -23,11 +24,14 @@ const SLOTS = [
 ];
 
 /** Четыре правила входа — те же, что развёрнуты на /gosti. */
+/* Каждая карточка ведёт на СВОЁ правило на /gosti, а не на страницу
+   вообще: раньше человек жал «ТЕЛЕФОНЫ» и попадал туда, где про телефоны
+   не было ни слова. Якоря совпадают с id правил в components/pages/Gosti. */
 const ENTRY = [
-  { name: "СПИСОК", note: "Закрывается за месяц" },
-  { name: "ПРИГЛАШЕНИЕ", note: "На бумаге, на одного" },
-  { name: "ТЕЛЕФОНЫ", note: "Сдаются на въезде" },
-  { name: "СЪЁМКА", note: "Запрещена везде" },
+  { id: "spisok", name: "СПИСОК", note: "Закрывается за месяц" },
+  { id: "priglashenie", name: "ПРИГЛАШЕНИЕ", note: "На бумаге, на одного" },
+  { id: "telefony", name: "ТЕЛЕФОНЫ", note: "Сдаются на въезде" },
+  { id: "syomka", name: "СЪЁМКА", note: "Запрещена везде" },
 ];
 
 const FINAL_DATE = ["Одна ночь в году"];
@@ -37,8 +41,10 @@ gsap.registerPlugin(ScrollTrigger);
 export default function HomeFlow() {
   const root = useRef<HTMLDivElement>(null);
   const finalWrap = useRef<HTMLDivElement>(null);
+  const entries = useRef<HTMLDivElement>(null);
   useReveal(root, { stagger: 0.08 });
   useLetterAssembly(root);
+  useEntryHover(entries);
 
   /* Схлопывание блока с датой. Привязано к скроллу, а не к таймеру:
      скоростью управляет пользователь. */
@@ -135,16 +141,19 @@ export default function HomeFlow() {
           Как сюда попадают
         </p>
 
-        <div className={s.entries}>
+        <div className={s.entries} ref={entries}>
           {ENTRY.map((rule) => (
             <AppLink
               className={s.entryCard}
-              href="/gosti"
-              key={rule.name}
+              href={`/gosti#${rule.id}`}
+              key={rule.id}
               data-reveal-fade
+              data-entry-card
               aria-label={`${rule.name} — правила входа`}
             >
-              <span className={s.entryName}>{rule.name}</span>
+              <span className={s.entryName} data-entry-name>
+                {rule.name}
+              </span>
               <span className={s.entryNote}>{rule.note}</span>
             </AppLink>
           ))}

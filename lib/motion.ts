@@ -240,3 +240,56 @@ export function usePillHover(ref: React.RefObject<HTMLElement | null>) {
     }
   }, [ref])
 }
+
+/**
+ * Наведение на карточку входа: карточка приподнимается на 4 px, имя правила
+ * чуть подрастает. Рамка светлеет средствами CSS — это не движение и в кадр
+ * анимации не попадает.
+ *
+ * 0.3 с, power2.out, только transform. Ловим на контейнере ряда, чтобы не
+ * вешать по слушателю на каждую карточку.
+ */
+export function useEntryHover(ref: React.RefObject<HTMLElement | null>) {
+  useEffect(() => {
+    const box = ref.current
+    if (!box) return
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+
+    const карточка = (e: Event) =>
+      (e.target as HTMLElement)?.closest<HTMLElement>('[data-entry-card]')
+
+    const внутрь = (e: Event) => {
+      const el = карточка(e)
+      if (!el) return
+      gsap.to(el, { y: -4, duration: 0.3, ease: 'power2.out', overwrite: 'auto' })
+      gsap.to(el.querySelector('[data-entry-name]'), {
+        scale: 1.06,
+        duration: 0.3,
+        ease: 'power2.out',
+        overwrite: 'auto',
+      })
+    }
+    const наружу = (e: Event) => {
+      const el = карточка(e)
+      if (!el) return
+      gsap.to(el, { y: 0, duration: 0.3, ease: 'power2.out', overwrite: 'auto' })
+      gsap.to(el.querySelector('[data-entry-name]'), {
+        scale: 1,
+        duration: 0.3,
+        ease: 'power2.out',
+        overwrite: 'auto',
+      })
+    }
+
+    box.addEventListener('pointerover', внутрь)
+    box.addEventListener('pointerout', наружу)
+    box.addEventListener('focusin', внутрь)
+    box.addEventListener('focusout', наружу)
+    return () => {
+      box.removeEventListener('pointerover', внутрь)
+      box.removeEventListener('pointerout', наружу)
+      box.removeEventListener('focusin', внутрь)
+      box.removeEventListener('focusout', наружу)
+    }
+  }, [ref])
+}

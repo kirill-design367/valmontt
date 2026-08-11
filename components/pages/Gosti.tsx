@@ -6,12 +6,22 @@ import { useReveal } from '@/lib/reveal'
 import { useLetterAssembly } from '@/lib/letters'
 import s from './Gosti.module.css'
 
-/** Четыре правила входа. Больше на странице ничего нет — и не должно быть. */
+/**
+ * Шесть правил входа: сначала четыре, обещанные карточками на главной,
+ * затем два про квест. Раньше здесь были только правила квеста, и человек,
+ * кликнувший по карточке «ТЕЛЕФОНЫ», попадал на страницу, где про телефоны
+ * ничего не сказано.
+ *
+ * `id` — якорь для карточки с главной: она ведёт не на страницу вообще, а
+ * на своё правило.
+ */
 const RULES = [
-  { name: 'КОД', note: 'Четыре цифры. Все на этом сайте.' },
-  { name: 'ПОДСКАЗКИ', note: 'Мы не прячем их. Мы просто не показываем.' },
-  { name: 'ПОПЫТКИ', note: 'Не ограничены. Время — да.' },
-  { name: 'ПРИГЛАШЕНИЕ', note: 'Открывается один раз и только вам.' },
+  { id: 'spisok', name: 'СПИСОК', note: 'Закрывается за месяц. Мы его не публикуем.' },
+  { id: 'priglashenie', name: 'ПРИГЛАШЕНИЕ', note: 'Приходит один раз, на бумаге, на одного.' },
+  { id: 'telefony', name: 'ТЕЛЕФОНЫ', note: 'Сдаются на въезде. Возвращаются на выезде.' },
+  { id: 'syomka', name: 'СЪЁМКА', note: 'Запрещена везде, включая террасу.' },
+  { id: 'kod', name: 'КОД', note: 'Четыре цифры. Все на этом сайте.' },
+  { id: 'podskazki', name: 'ПОДСКАЗКИ', note: 'Мы не прячем их. Мы просто не показываем.' },
 ]
 
 /**
@@ -40,7 +50,7 @@ export default function Gosti() {
 
         <ol className={s.rules}>
           {RULES.map((rule) => (
-            <li className={s.rule} key={rule.name} data-reveal-group>
+            <li className={s.rule} key={rule.id} id={rule.id} data-reveal-group>
               <span className={`${s.mask} ${s.free}`}>
                 <span className={s.name} data-letters>
                   {rule.name}

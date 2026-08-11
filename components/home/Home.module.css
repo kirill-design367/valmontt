@@ -66,6 +66,15 @@
  * ------------------------------------------------------------------ */
 /* Ширину держит строка, а не секция: max-width на самой секции обрезал бы
    и её фон, и сквозь блок просвечивал бы hero. */
+/* Манифест занимает экран целиком, текст — по центру оставшегося места,
+   а не прижат к верху. Пустота вокруг работает как пауза. */
+.manifest {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
 .manifest .line {
   max-width: 66rem;
 }
@@ -165,19 +174,25 @@
 
 /* Карточка без изображения: та же пропорция и тот же ряд, что были у
    бестиария, но внутри только типографика — на /gosti кадров тоже нет. */
+/* Карточка держится типографикой: внутри чёрный и ничего больше.
+   Пропорция и композиция ряда не менялись. */
 .entryCard {
   position: relative;
   aspect-ratio: 3 / 4;
   overflow: hidden;
   background: var(--color-void);
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  transition: border-color 0.5s var(--ease-out-quint);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  transition: border-color 0.3s var(--ease-out-quint);
+  will-change: transform;
 }
 
 .entryCard:hover,
 .entryCard:focus-visible {
-  border-color: var(--hairline);
+  border-color: rgba(255, 255, 255, 0.4);
 }
+
+/* Наведение: рамка светлеет (CSS), имя подрастает и карточка
+   приподнимается (GSAP, только transform) — см. useEntryHover. */
 
 /* имя вдоль края карточки — тот же приём, что вордмарк в hero */
 .entryName {
@@ -193,6 +208,8 @@
   line-height: 1;
   letter-spacing: var(--track-vert);
   color: var(--color-bone);
+  transform-origin: left top;
+  will-change: transform;
 }
 
 /* Строка внизу карточки: без неё рамка читается как пустая заглушка. */

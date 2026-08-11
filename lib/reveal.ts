@@ -61,11 +61,13 @@ export function useReveal(
           if (fades.length) {
             gsap.fromTo(
               fades,
-              { y: 18, opacity: 0 },
+              // простое проявление вместо сборки: сдвиг снизу на 20 px,
+              // 0.6 с, stagger 0.06 между строками
+              { y: 20, opacity: 0 },
               {
                 y: 0,
                 opacity: 1,
-                duration: 0.9,
+                duration: 0.6,
                 ease: 'power3.out',
                 stagger,
                 scrollTrigger: { trigger: group, start: старт(group), once: true, invalidateOnRefresh: true },
@@ -84,4 +86,38 @@ export function useReveal(
 
     return () => ctx.revert()
   }, [scope, stagger])
+}
+
+/**
+ * Простое проявление одного элемента: снизу на 20 px и из нуля прозрачности.
+ * То, что стоит вместо сборки там, где сборку сняли, — подписи кадров,
+ * лиды, описания. `containerAnimation` нужен горизонтальной ленте /mesto:
+ * там кадр приезжает вбок, а не по вертикальному скроллу.
+ */
+export function fadeUp(
+  el: HTMLElement,
+  {
+    containerAnimation,
+    start = 'top 88%',
+  }: { containerAnimation?: gsap.core.Animation; start?: string } = {},
+) {
+  if (window.matchMedia(REDUCE).matches) {
+    gsap.set(el, { y: 0, opacity: 1 })
+    return () => {}
+  }
+  const tween = gsap.fromTo(
+    el,
+    { y: 20, opacity: 0 },
+    {
+      y: 0,
+      opacity: 1,
+      duration: 0.6,
+      ease: 'power3.out',
+      scrollTrigger: { trigger: el, start, once: true, containerAnimation },
+    },
+  )
+  return () => {
+    tween.scrollTrigger?.kill()
+    tween.kill()
+  }
 }

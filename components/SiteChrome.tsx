@@ -39,6 +39,8 @@ export default function SiteChrome({ children }: { children: React.ReactNode }) 
 
   /** маршрут, к которому едем; пока он задан — штора внизу не поднимается */
   const pending = useRef<string | null>(null)
+  /** якорь внутри нового маршрута: карточки входа ведут на своё правило */
+  const anchor = useRef<string | null>(null)
   const [curtainName, setCurtainName] = useState('ВАЛЬМОНТ')
 
   /* ---------------------------------------------------------------- скролл */
@@ -68,17 +70,43 @@ export default function SiteChrome({ children }: { children: React.ReactNode }) 
     }
   }, [])
 
+  /** Доехать до правила по его id. Под шторой — мгновенно, иначе плавно. */
+  const кЯкорю = useCallback((id: string, сразу = false) => {
+    const цель = document.getElementById(id)
+    const l = lenisRef.current
+    if (!цель) {
+      l?.scrollTo(0, { immediate: сразу })
+      return
+    }
+    // отступ на высоту шапки, иначе правило встаёт под меню
+    const шапка = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--nav-h')) || 0
+    const сдвиг = -(шапка * 16 + 24)
+    if (l) l.scrollTo(цель, { immediate: сразу, offset: сдвиг })
+    else цель.scrollIntoView({ behavior: сразу ? 'auto' : 'smooth' })
+  }, [])
+
   /* -------------------------------------------------------------- переход */
   const navigate = useCallback<Nav>(
     (href) => {
+      // якорь отделяем: маршрут сравниваем без него, а после перехода
+      // прокручиваем не в ноль, а к нужному правилу
+      const [путь, якорь] = href.split('#')
       const here = '/' + pathname.replace(/^\/+|\/+$/g, '')
-      const there = '/' + href.replace(/^\/+|\/+$/g, '')
-      if (here === there || pending.current) return
+      const there = '/' + путь.replace(/^\/+|\/+$/g, '')
+      if (pending.current) return
+      if (here === there) {
+        // уже на месте — просто доезжаем до якоря
+        if (якорь) кЯкорю(якорь)
+        return
+      }
+      anchor.current = якорь ?? null
 
       const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
       if (reduce) {
         pending.current = null
-        router.push(href)
+        router.push(путь)
+        // бережный режим: шторы нет, до якоря доезжаем сразу после отрисовки
+        if (якорь) requestAnimationFrame(() => requestAnimationFrame(() => кЯкорю(якорь, true)))
         return
       }
 
@@ -88,7 +116,7 @@ export default function SiteChrome({ children }: { children: React.ReactNode }) 
       const el = curtain.current
       const label = name.current
       if (!el || !label) {
-        router.push(href)
+        router.push(путь)
         return
       }
 
@@ -109,9 +137,9 @@ export default function SiteChrome({ children }: { children: React.ReactNode }) 
           '-=0.06',
         )
         // 3. уходим за штору — новая страница рисуется в темноте
-        .add(() => router.push(href))
+        .add(() => router.push(путь))
     },
-    [pathname, router],
+    [pathname, router, кЯкорю],
   )
 
   /* Штора уходит только когда новый маршрут уже отрисован. */
@@ -124,7 +152,12 @@ export default function SiteChrome({ children }: { children: React.ReactNode }) 
     const label = name.current
     if (!el) return
 
-    lenisRef.current?.scrollTo(0, { immediate: true })
+    /* Прокрутка под шторой: в ноль, а если пришли по якорю — к нему.
+       Человек не видит перескока, всё происходит за чёрным. */
+    const якорь = anchor.current
+    anchor.current = null
+    if (якорь) кЯкорю(якорь, true)
+    else lenisRef.current?.scrollTo(0, { immediate: true })
 
     // два кадра, чтобы новая страница успела встать в лейаут под шторой
     requestAnimationFrame(() =>
@@ -137,7 +170,7 @@ export default function SiteChrome({ children }: { children: React.ReactNode }) 
           .to(el, { yPercent: -100, duration: 0.5, ease: 'power3.inOut' }, 0.16)
       }),
     )
-  }, [pathname])
+  }, [pathname, кЯкорю])
 
   return (
     <LenisContext.Provider value={lenis}>
